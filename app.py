@@ -3,14 +3,16 @@ import sqlite3
 
 app = Flask(__name__)
 
+DATABASE = "jobs.db"
+
 
 def get_db_connection():
-    conn = sqlite3.connect("jobs.db")
+    conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-def setup_database():
+def init_db():
     conn = get_db_connection()
 
     conn.execute("""
@@ -18,85 +20,53 @@ def setup_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             company TEXT NOT NULL,
             role TEXT NOT NULL,
-            application_date TEXT NOT NULL,
-            status TEXT NOT NULL,
+            application_date TEXT,
+            status TEXT,
             interview_date TEXT,
             job_url TEXT,
             notes TEXT
         )
     """)
 
-    existing_columns = [
-        row["name"]
-        for row in conn.execute("PRAGMA table_info(jobs)").fetchall()
-    ]
-
-    for column in ["interview_date", "job_url", "notes"]:
-        if column not in existing_columns:
-            conn.execute(
-                f"ALTER TABLE jobs ADD COLUMN {column} TEXT"
-            )
-
     conn.commit()
     conn.close()
 
 
+# IMPORTANT:
+# Create the database/table when Render starts the application
+init_db()
+
+
 @app.route("/")
 def home():
-
-    search = request.args.get("search", "")
-    status = request.args.get("status", "")
-    sort = request.args.get("sort", "newest")
-
     conn = get_db_connection()
 
-    query = "SELECT * FROM jobs WHERE 1=1"
-    params = []
+    jobs = conn.execute(
+        "SELECT * FROM jobs ORDER BY id DESC"
+    ).fetchall()
 
-    # Search
-    if search:
-        query += " AND (company LIKE ? OR role LIKE ?)"
-        params.extend([
-            f"%{search}%",
-            f"%{search}%"
-        ])
-
-    # Status filter
-    if status:
-        query += " AND status = ?"
-        params.append(status)
-
-    # Sorting
-    if sort == "oldest":
-        query += " ORDER BY application_date ASC"
-
-    elif sort == "company":
-        query += " ORDER BY company ASC"
-
-    else:
-        query += " ORDER BY application_date DESC"
-
-    jobs = conn.execute(query, params).fetchall()
-
-    # Dashboard
-    total_count = conn.execute(
+    total = conn.execute(
         "SELECT COUNT(*) FROM jobs"
     ).fetchone()[0]
 
-    applied_count = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = 'Applied'"
+    applied = conn.execute(
+        "SELECT COUNT(*) FROM jobs WHERE status = ?",
+        ("Applied",)
     ).fetchone()[0]
 
-    interview_count = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = 'Interview'"
+    interview = conn.execute(
+        "SELECT COUNT(*) FROM jobs WHERE status = ?",
+        ("Interview",)
     ).fetchone()[0]
 
-    rejected_count = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = 'Rejected'"
+    rejected = conn.execute(
+        "SELECT COUNT(*) FROM jobs WHERE status = ?",
+        ("Rejected",)
     ).fetchone()[0]
 
-    selected_count = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = 'Selected'"
+    selected = conn.execute(
+        "SELECT COUNT(*) FROM jobs WHERE status = ?",
+        ("Selected",)
     ).fetchone()[0]
 
     conn.close()
@@ -104,42 +74,30 @@ def home():
     return render_template(
         "index.html",
         jobs=jobs,
-        search=search,
-        status=status,
-        sort=sort,
-        total_count=total_count,
-        applied_count=applied_count,
-        interview_count=interview_count,
-        rejected_count=rejected_count,
-        selected_count=selected_count
+        total=total,
+        applied=applied,
+        interview=interview,
+        rejected=rejected,
+        selected=selected
     )
 
 
 @app.route("/add", methods=["POST"])
 def add_job():
-
-    company = request.form["company"]
-    role = request.form["role"]
-    application_date = request.form["application_date"]
-    status = request.form["status"]
-
-    interview_date = request.form.get("interview_date", "")
-    job_url = request.form.get("job_url", "")
-    notes = request.form.get("notes", "")
+    company = request.form.get("company")
+    role = request.form.get("role")
+    application_date = request.form.get("application_date")
+    status = request.form.get("status")
+    interview_date = request.form.get("interview_date")
+    job_url = request.form.get("job_url")
+    notes = request.form.get("notes")
 
     conn = get_db_connection()
 
     conn.execute("""
         INSERT INTO jobs
-        (
-            company,
-            role,
-            application_date,
-            status,
-            interview_date,
-            job_url,
-            notes
-        )
+        (company, role, application_date, status,
+         interview_date, job_url, notes)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
         company,
@@ -157,9 +115,8 @@ def add_job():
     return redirect("/")
 
 
-@app.route("/delete/<int:job_id>")
+@app.route("/delete/<int:job_id>", methods=["POST"])
 def delete_job(job_id):
-
     conn = get_db_connection()
 
     conn.execute(
@@ -173,48 +130,9 @@ def delete_job(job_id):
     return redirect("/")
 
 
-@app.route("/edit/<int:job_id>", methods=["GET", "POST"])
+@app.route("/edit/<int:job_id>")
 def edit_job(job_id):
-
     conn = get_db_connection()
-
-    if request.method == "POST":
-
-        company = request.form["company"]
-        role = request.form["role"]
-        application_date = request.form["application_date"]
-        status = request.form["status"]
-
-        interview_date = request.form.get("interview_date", "")
-        job_url = request.form.get("job_url", "")
-        notes = request.form.get("notes", "")
-
-        conn.execute("""
-            UPDATE jobs
-            SET
-                company = ?,
-                role = ?,
-                application_date = ?,
-                status = ?,
-                interview_date = ?,
-                job_url = ?,
-                notes = ?
-            WHERE id = ?
-        """, (
-            company,
-            role,
-            application_date,
-            status,
-            interview_date,
-            job_url,
-            notes,
-            job_id
-        ))
-
-        conn.commit()
-        conn.close()
-
-        return redirect("/")
 
     job = conn.execute(
         "SELECT * FROM jobs WHERE id = ?",
@@ -229,6 +147,79 @@ def edit_job(job_id):
     )
 
 
+@app.route("/update/<int:job_id>", methods=["POST"])
+def update_job(job_id):
+    company = request.form.get("company")
+    role = request.form.get("role")
+    application_date = request.form.get("application_date")
+    status = request.form.get("status")
+    interview_date = request.form.get("interview_date")
+    job_url = request.form.get("job_url")
+    notes = request.form.get("notes")
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        UPDATE jobs
+        SET company = ?,
+            role = ?,
+            application_date = ?,
+            status = ?,
+            interview_date = ?,
+            job_url = ?,
+            notes = ?
+        WHERE id = ?
+    """, (
+        company,
+        role,
+        application_date,
+        status,
+        interview_date,
+        job_url,
+        notes,
+        job_id
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+
+@app.route("/search")
+def search():
+    query = request.args.get("q", "")
+
+    conn = get_db_connection()
+
+    jobs = conn.execute("""
+        SELECT * FROM jobs
+        WHERE company LIKE ?
+           OR role LIKE ?
+           OR status LIKE ?
+        ORDER BY id DESC
+    """, (
+        "%" + query + "%",
+        "%" + query + "%",
+        "%" + query + "%"
+    )).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "index.html",
+        jobs=jobs,
+        total=len(jobs),
+        applied=0,
+        interview=0,
+        rejected=0,
+        selected=0
+    )
+
+
 if __name__ == "__main__":
-    setup_database()
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
