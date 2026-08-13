@@ -1,13 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Edit Job Application</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+        }
 
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 7px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #198754;
+            color: white;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            margin-left: 10px;
+            padding: 12px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,9 +78,12 @@
 
     <h1>Edit Job Application</h1>
 
-    <form method="POST">
+    <form
+        action="/update/{{ job['id'] }}"
+        method="POST"
+    >
 
-        <label>Company Name:</label>
+        <label>Company Name</label>
 
         <input
             type="text"
@@ -27,10 +92,8 @@
             required
         >
 
-        <br><br>
 
-
-        <label>Job Role:</label>
+        <label>Job Role</label>
 
         <input
             type="text"
@@ -39,96 +102,90 @@
             required
         >
 
-        <br><br>
 
-
-        <label>Application Date:</label>
+        <label>Application Date</label>
 
         <input
             type="date"
             name="application_date"
             value="{{ job['application_date'] }}"
-            required
         >
 
-        <br><br>
 
-
-        <label>Status:</label>
+        <label>Application Status</label>
 
         <select name="status">
 
             <option value="Applied"
-                {% if job['status'] == 'Applied' %}selected{% endif %}>
+                {% if job['status'] == 'Applied' %}
+                selected
+                {% endif %}
+            >
                 Applied
             </option>
 
             <option value="Interview"
-                {% if job['status'] == 'Interview' %}selected{% endif %}>
+                {% if job['status'] == 'Interview' %}
+                selected
+                {% endif %}
+            >
                 Interview
             </option>
 
             <option value="Rejected"
-                {% if job['status'] == 'Rejected' %}selected{% endif %}>
+                {% if job['status'] == 'Rejected' %}
+                selected
+                {% endif %}
+            >
                 Rejected
             </option>
 
             <option value="Selected"
-                {% if job['status'] == 'Selected' %}selected{% endif %}>
+                {% if job['status'] == 'Selected' %}
+                selected
+                {% endif %}
+            >
                 Selected
             </option>
 
         </select>
 
-        <br><br>
 
-
-        <label>Interview Date:</label>
+        <label>Interview Date</label>
 
         <input
             type="date"
             name="interview_date"
-            value="{{ job['interview_date'] or '' }}"
+            value="{{ job['interview_date'] }}"
         >
 
-        <br><br>
 
-
-        <label>Job URL:</label>
+        <label>Job URL</label>
 
         <input
             type="url"
             name="job_url"
-            value="{{ job['job_url'] or '' }}"
+            value="{{ job['job_url'] }}"
         >
 
-        <br><br>
 
+        <label>Notes</label>
 
-        <label>Notes:</label>
-
-        <br>
-
-        <textarea
-            name="notes"
-            rows="5"
-            cols="50"
-        >{{ job['notes'] or '' }}</textarea>
-
-        <br><br>
+        <textarea name="notes">{{ job['notes'] }}</textarea>
 
 
         <button type="submit">
             Update Application
         </button>
 
+        <a
+            href="/"
+            class="back"
+        >
+            Back
+        </a>
+
     </form>
-
-    <br>
-
-    <a href="/">
-        ← Back to Applications
-    </a>
 
 </div>
 
