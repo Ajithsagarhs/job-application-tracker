@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Job Application Tracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Job Application Tracker</h1>
+
+
+    <!-- DASHBOARD -->
+
+    <h2>Dashboard</h2>
+
+    <div class="dashboard">
+
+        <div class="card">
+            <h3>Total</h3>
+            <p>{{ total_count }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Applied</h3>
+            <p>{{ applied_count }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Interview</h3>
+            <p>{{ interview_count }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Rejected</h3>
+            <p>{{ rejected_count }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Selected</h3>
+            <p>{{ selected_count }}</p>
+        </div>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- ADD APPLICATION -->
+
+    <h2>Add Job Application</h2>
+
+    <form action="/add" method="POST">
+
+        <label>Company Name:</label>
+
+        <input
+            type="text"
+            name="company"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Job Role:</label>
+
+        <input
+            type="text"
+            name="role"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Application Date:</label>
+
+        <input
+            type="date"
+            name="application_date"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Status:</label>
+
+        <select name="status">
+
+            <option value="Applied">Applied</option>
+            <option value="Interview">Interview</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Selected">Selected</option>
+
+        </select>
+
+        <br><br>
+
+
+        <label>Interview Date:</label>
+
+        <input
+            type="date"
+            name="interview_date"
+        >
+
+        <br><br>
+
+
+        <label>Job URL:</label>
+
+        <input
+            type="url"
+            name="job_url"
+            placeholder="https://example.com"
+        >
+
+        <br><br>
+
+
+        <label>Notes:</label>
+
+        <br>
+
+        <textarea
+            name="notes"
+            rows="4"
+            cols="50"
+            placeholder="Enter notes..."
+        ></textarea>
+
+        <br><br>
+
+
+        <button type="submit">
+            Add Application
+        </button>
+
+    </form>
+
+
+    <hr>
+
+
+    <!-- SEARCH / FILTER / SORT -->
+
+    <h2>Search & Filter</h2>
+
+    <form action="/" method="GET">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search company or role"
+        >
+
+
+        <select name="status">
+
+            <option value="">All Status</option>
+
+            <option value="Applied"
+                {% if status == "Applied" %}selected{% endif %}>
+                Applied
+            </option>
+
+            <option value="Interview"
+                {% if status == "Interview" %}selected{% endif %}>
+                Interview
+            </option>
+
+            <option value="Rejected"
+                {% if status == "Rejected" %}selected{% endif %}>
+                Rejected
+            </option>
+
+            <option value="Selected"
+                {% if status == "Selected" %}selected{% endif %}>
+                Selected
+            </option>
+
+        </select>
+
+
+        <select name="sort">
+
+            <option value="newest"
+                {% if sort == "newest" %}selected{% endif %}>
+                Newest First
+            </option>
+
+            <option value="oldest"
+                {% if sort == "oldest" %}selected{% endif %}>
+                Oldest First
+            </option>
+
+            <option value="company"
+                {% if sort == "company" %}selected{% endif %}>
+                Company A-Z
+            </option>
+
+        </select>
+
+
+        <button type="submit">
+            Search
+        </button>
+
+
+        <a href="/">
+            Clear
+        </a>
+
+    </form>
+
+
+    <!-- APPLICATION TABLE -->
+
+    <h2>Job Applications</h2>
+
+    <table>
+
+        <tr>
+
+            <th>Company</th>
+            <th>Job Role</th>
+            <th>Application Date</th>
+            <th>Status</th>
+            <th>Interview Date</th>
+            <th>Job URL</th>
+            <th>Notes</th>
+            <th>Action</th>
+
+        </tr>
+
+
+        {% for job in jobs %}
+
+        <tr>
+
+            <td>
+                {{ job["company"] }}
+            </td>
+
+            <td>
+                {{ job["role"] }}
+            </td>
+
+            <td>
+                {{ job["application_date"] }}
+            </td>
+
+            <td>
+
+                <span class="status {{ job['status']|lower }}">
+
+                    {{ job["status"] }}
+
+                </span>
+
+            </td>
+
+            <td>
+                {{ job["interview_date"] or "-" }}
+            </td>
+
+            <td>
+
+                {% if job["job_url"] %}
+
+                    <a
+                        href="{{ job['job_url'] }}"
+                        target="_blank"
+                    >
+                        Open
+                    </a>
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </td>
+
+            <td>
+                {{ job["notes"] or "-" }}
+            </td>
+
+            <td>
+
+                <a href="/edit/{{ job['id'] }}">
+                    Edit
+                </a>
+
+                |
+
+                <a
+                    href="/delete/{{ job['id'] }}"
+                    onclick="return confirm('Are you sure you want to delete this application?');"
+                >
+                    Delete
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% else %}
+
+        <tr>
+
+            <td colspan="8">
+                No applications found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

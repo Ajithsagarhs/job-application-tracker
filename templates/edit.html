@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Edit Job Application</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Edit Job Application</h1>
+
+    <form method="POST">
+
+        <label>Company Name:</label>
+
+        <input
+            type="text"
+            name="company"
+            value="{{ job['company'] }}"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Job Role:</label>
+
+        <input
+            type="text"
+            name="role"
+            value="{{ job['role'] }}"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Application Date:</label>
+
+        <input
+            type="date"
+            name="application_date"
+            value="{{ job['application_date'] }}"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Status:</label>
+
+        <select name="status">
+
+            <option value="Applied"
+                {% if job['status'] == 'Applied' %}selected{% endif %}>
+                Applied
+            </option>
+
+            <option value="Interview"
+                {% if job['status'] == 'Interview' %}selected{% endif %}>
+                Interview
+            </option>
+
+            <option value="Rejected"
+                {% if job['status'] == 'Rejected' %}selected{% endif %}>
+                Rejected
+            </option>
+
+            <option value="Selected"
+                {% if job['status'] == 'Selected' %}selected{% endif %}>
+                Selected
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <label>Interview Date:</label>
+
+        <input
+            type="date"
+            name="interview_date"
+            value="{{ job['interview_date'] or '' }}"
+        >
+
+        <br><br>
+
+
+        <label>Job URL:</label>
+
+        <input
+            type="url"
+            name="job_url"
+            value="{{ job['job_url'] or '' }}"
+        >
+
+        <br><br>
+
+
+        <label>Notes:</label>
+
+        <br>
+
+        <textarea
+            name="notes"
+            rows="5"
+            cols="50"
+        >{{ job['notes'] or '' }}</textarea>
+
+        <br><br>
+
+
+        <button type="submit">
+            Update Application
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/">
+        ← Back to Applications
+    </a>
+
+</div>
+
+</body>
+
+</html>
