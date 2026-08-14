@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Edit Application - JobTracker</title>
+    <title>Add Application - JobTracker</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -39,6 +39,10 @@
 
         .form-section {
             margin-bottom: 30px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
         }
 
         .form-section h2 {
@@ -149,22 +153,6 @@
             background: #00745d;
         }
 
-        .danger-btn {
-            display: inline-block;
-            background: #fff0f0;
-            color: #c00000;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-right: auto;
-        }
-
-        .danger-btn:hover {
-            background: #ffe0e0;
-        }
-
         @media (max-width: 700px) {
 
             .form-grid {
@@ -180,14 +168,13 @@
             }
 
             .form-actions {
-                flex-wrap: wrap;
+                flex-direction: column-reverse;
             }
 
-            .danger-btn {
-                width: 100%;
-                margin-right: 0;
+            .cancel-btn,
+            .save-btn {
                 text-align: center;
-                order: 3;
+                width: 100%;
             }
 
         }
@@ -200,7 +187,9 @@
 <body>
 
 
-    <!-- FLASH MESSAGES -->
+    <!-- =========================
+         FLASH MESSAGES
+    ========================= -->
 
     {% with messages = get_flashed_messages(with_categories=true) %}
 
@@ -223,7 +212,9 @@
     {% endwith %}
 
 
-    <!-- SIDEBAR -->
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
 
     <div class="sidebar">
 
@@ -298,7 +289,9 @@
     </div>
 
 
-    <!-- MAIN -->
+    <!-- =========================
+         MAIN
+    ========================= -->
 
     <div class="main">
 
@@ -308,28 +301,30 @@
         <div class="page-header">
 
             <h1>
-                Edit Application
+                Add Application
             </h1>
 
             <p>
-                Update the details of your job application.
+                Add a new job application to your tracker.
             </p>
 
         </div>
 
 
-        <!-- FORM CARD -->
+        <!-- =========================
+             FORM
+        ========================= -->
 
         <div class="form-card">
 
 
             <form
-                action="/edit/{{ job['id'] }}"
+                action="/add"
                 method="POST"
             >
 
 
-                <!-- JOB INFORMATION -->
+                <!-- BASIC INFORMATION -->
 
                 <div class="form-section">
 
@@ -338,7 +333,7 @@
                     </h2>
 
                     <p class="form-section-description">
-                        Update the company and job details.
+                        Enter the basic details about the job.
                     </p>
 
 
@@ -361,7 +356,6 @@
                                 type="text"
                                 id="company"
                                 name="company"
-                                value="{{ job['company'] }}"
                                 placeholder="e.g. Accenture"
                                 required
                             >
@@ -385,7 +379,6 @@
                                 type="text"
                                 id="role"
                                 name="role"
-                                value="{{ job['role'] }}"
                                 placeholder="e.g. Software Developer"
                                 required
                             >
@@ -393,7 +386,7 @@
                         </div>
 
 
-                        <!-- DATE -->
+                        <!-- APPLICATION DATE -->
 
                         <div class="form-group">
 
@@ -409,7 +402,6 @@
                                 type="date"
                                 id="date"
                                 name="date"
-                                value="{{ job['application_date'] }}"
                                 required
                             >
 
@@ -434,47 +426,27 @@
                                 required
                             >
 
-                                <option value="Applied"
-                                    {% if job['status'] == 'Applied' %}
-                                        selected
-                                    {% endif %}
-                                >
+                                <option value="">
+                                    Select status
+                                </option>
+
+                                <option value="Applied">
                                     Applied
                                 </option>
 
-
-                                <option value="Interview"
-                                    {% if job['status'] == 'Interview' %}
-                                        selected
-                                    {% endif %}
-                                >
+                                <option value="Interview">
                                     Interview
                                 </option>
 
-
-                                <option value="Selected"
-                                    {% if job['status'] == 'Selected' %}
-                                        selected
-                                    {% endif %}
-                                >
+                                <option value="Selected">
                                     Selected
                                 </option>
 
-
-                                <option value="Offer"
-                                    {% if job['status'] == 'Offer' %}
-                                        selected
-                                    {% endif %}
-                                >
+                                <option value="Offer">
                                     Offer
                                 </option>
 
-
-                                <option value="Rejected"
-                                    {% if job['status'] == 'Rejected' %}
-                                        selected
-                                    {% endif %}
-                                >
+                                <option value="Rejected">
                                     Rejected
                                 </option>
 
@@ -488,7 +460,7 @@
                 </div>
 
 
-                <!-- INTERVIEW -->
+                <!-- INTERVIEW INFORMATION -->
 
                 <div class="form-section">
 
@@ -497,7 +469,8 @@
                     </h2>
 
                     <p class="form-section-description">
-                        Update the interview date if required.
+                        Add the interview date if an interview has
+                        been scheduled.
                     </p>
 
 
@@ -517,12 +490,11 @@
                                 type="date"
                                 id="interview"
                                 name="interview"
-                                value="{{ job['interview_date'] or '' }}"
                             >
 
 
                             <span class="form-help">
-                                Leave blank if there is no interview.
+                                Leave blank if no interview is scheduled.
                             </span>
 
                         </div>
@@ -533,7 +505,7 @@
                 </div>
 
 
-                <!-- JOB URL -->
+                <!-- JOB LINK -->
 
                 <div class="form-section">
 
@@ -542,7 +514,7 @@
                     </h2>
 
                     <p class="form-section-description">
-                        Update the job posting URL.
+                        Save the job posting URL so you can access it later.
                     </p>
 
 
@@ -552,7 +524,9 @@
                         <div class="form-group full">
 
                             <label for="url">
+
                                 Job URL
+
                             </label>
 
 
@@ -560,9 +534,13 @@
                                 type="url"
                                 id="url"
                                 name="url"
-                                value="{{ job['job_url'] or '' }}"
                                 placeholder="https://company.com/jobs/123"
                             >
+
+
+                            <span class="form-help">
+                                Example: https://www.linkedin.com/jobs/...
+                            </span>
 
                         </div>
 
@@ -581,7 +559,7 @@
                     </h2>
 
                     <p class="form-section-description">
-                        Update your notes for this application.
+                        Add any additional information about this application.
                     </p>
 
 
@@ -598,8 +576,8 @@
                             <textarea
                                 id="notes"
                                 name="notes"
-                                placeholder="Add notes about this application..."
-                            >{{ job['notes'] or '' }}</textarea>
+                                placeholder="Example: HR contacted me. Technical round scheduled..."
+                            ></textarea>
 
                         </div>
 
@@ -615,15 +593,6 @@
 
 
                     <a
-                        href="/delete/{{ job['id'] }}"
-                        class="danger-btn"
-                        onclick="return confirm('Are you sure you want to delete this application?')"
-                    >
-                        Delete Application
-                    </a>
-
-
-                    <a
                         href="/applications"
                         class="cancel-btn"
                     >
@@ -635,7 +604,7 @@
                         type="submit"
                         class="save-btn"
                     >
-                        Save Changes
+                        Save Application
                     </button>
 
 
@@ -651,9 +620,57 @@
     </div>
 
 
-    <!-- FLASH AUTO HIDE -->
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
 
     <script>
+
+        /*
+         * Automatically set today's date
+         * when the page loads.
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                const dateInput =
+                    document.getElementById("date");
+
+
+                if (!dateInput.value) {
+
+                    const today =
+                        new Date();
+
+
+                    const year =
+                        today.getFullYear();
+
+
+                    const month =
+                        String(
+                            today.getMonth() + 1
+                        ).padStart(2, "0");
+
+
+                    const day =
+                        String(
+                            today.getDate()
+                        ).padStart(2, "0");
+
+
+                    dateInput.value =
+                        `${year}-${month}-${day}`;
+
+                }
+
+            }
+        );
+
+
+        /* AUTO HIDE FLASH */
 
         setTimeout(function() {
 

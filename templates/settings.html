@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Settings - JobTracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            margin-bottom: 7px;
+        }
+
+        .page-header p {
+            color: #737d78;
+            font-size: 14px;
+        }
+
+        .settings-container {
+            max-width: 900px;
+        }
+
+        .settings-card {
+            background: white;
+            border: 1px solid #e4e8e6;
+            border-radius: 13px;
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .settings-card h2 {
+            font-size: 19px;
+            margin-bottom: 6px;
+        }
+
+        .settings-card-description {
+            color: #7a847f;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #edf0ef;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-info strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .setting-info span {
+            color: #7a847f;
+            font-size: 12px;
+        }
+
+        .setting-value {
+            color: #68736e;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .about-logo {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .about-logo span {
+            color: #008f72;
+        }
+
+        .about-text {
+            color: #68736e;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 18px;
+        }
+
+        .feature-list li {
+            padding: 9px 0;
+            color: #58635e;
+            font-size: 13px;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #008f72;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .tech-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: #e6f5f0;
+            color: #007d64;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .danger-card {
+            border-color: #f0d6d6;
+        }
+
+        .danger-card h2 {
+            color: #b00000;
+        }
+
+        .dashboard-btn {
+            display: inline-block;
+            background: #008f72;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .dashboard-btn:hover {
+            background: #00745d;
+        }
+
+        @media (max-width: 650px) {
+
+            .setting-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Job<span>Tracker</span>
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+
+                <a href="/">
+
+                    <span class="icon">
+                        ⌂
+                    </span>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/applications">
+
+                    <span class="icon">
+                        ▣
+                    </span>
+
+                    Applications
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/interviews">
+
+                    <span class="icon">
+                        ◷
+                    </span>
+
+                    Interviews
+
+                </a>
+
+            </li>
+
+
+            <li class="active">
+
+                <a href="/settings">
+
+                    <span class="icon">
+                        ⚙
+                    </span>
+
+                    Settings
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <div class="main">
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <h1>
+                Settings
+            </h1>
+
+            <p>
+                Manage your JobTracker preferences.
+            </p>
+
+        </div>
+
+
+        <div class="settings-container">
+
+
+            <!-- =========================
+                 APPLICATION SETTINGS
+            ========================= -->
+
+            <div class="settings-card">
+
+                <h2>
+                    Application Settings
+                </h2>
+
+                <p class="settings-card-description">
+                    Information about your job tracking system.
+                </p>
+
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            Application Name
+                        </strong>
+
+                        <span>
+                            Name of this job tracking application.
+                        </span>
+
+                    </div>
+
+
+                    <div class="setting-value">
+                        JobTracker
+                    </div>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            Database
+                        </strong>
+
+                        <span>
+                            Database used to store applications.
+                        </span>
+
+                    </div>
+
+
+                    <div class="setting-value">
+                        SQLite
+                    </div>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            Application Statuses
+                        </strong>
+
+                        <span>
+                            Available statuses for job applications.
+                        </span>
+
+                    </div>
+
+
+                    <div class="setting-value">
+                        5 statuses
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 FEATURES
+            ========================= -->
+
+            <div class="settings-card">
+
+                <h2>
+                    Features
+                </h2>
+
+                <p class="settings-card-description">
+                    Features currently available in JobTracker.
+                </p>
+
+
+                <ul class="feature-list">
+
+                    <li>
+                        Add job applications
+                    </li>
+
+                    <li>
+                        Edit existing applications
+                    </li>
+
+                    <li>
+                        Delete applications
+                    </li>
+
+                    <li>
+                        Search and filter applications
+                    </li>
+
+                    <li>
+                        Track application status
+                    </li>
+
+                    <li>
+                        Track interview dates
+                    </li>
+
+                    <li>
+                        View complete application details
+                    </li>
+
+                    <li>
+                        Dashboard analytics
+                    </li>
+
+                    <li>
+                        Upcoming interview tracking
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <!-- =========================
+                 TECHNOLOGIES
+            ========================= -->
+
+            <div class="settings-card">
+
+                <h2>
+                    Technologies
+                </h2>
+
+                <p class="settings-card-description">
+                    Technologies used to build this project.
+                </p>
+
+
+                <div class="tech-badges">
+
+                    <span class="tech-badge">
+                        Python
+                    </span>
+
+                    <span class="tech-badge">
+                        Flask
+                    </span>
+
+                    <span class="tech-badge">
+                        SQLite
+                    </span>
+
+                    <span class="tech-badge">
+                        HTML
+                    </span>
+
+                    <span class="tech-badge">
+                        CSS
+                    </span>
+
+                    <span class="tech-badge">
+                        JavaScript
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 ABOUT
+            ========================= -->
+
+            <div class="settings-card">
+
+                <div class="about-logo">
+                    Job<span>Tracker</span>
+                </div>
+
+
+                <p class="about-text">
+
+                    JobTracker is a simple job application
+                    management system designed to help job
+                    seekers organize and track their job search
+                    in one place.
+
+                </p>
+
+
+                <a href="/"
+                   class="dashboard-btn">
+
+                    ← Back to Dashboard
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>

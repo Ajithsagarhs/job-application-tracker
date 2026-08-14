@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Applications - JobTracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            color: #737d78;
+            font-size: 14px;
+        }
+
+        .application-card {
+            background: white;
+            border: 1px solid #e4e8e6;
+            border-radius: 13px;
+            padding: 25px;
+        }
+
+        .application-count {
+            color: #737d78;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .application-count strong {
+            color: #17211d;
+        }
+
+        .company-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .role-name {
+            color: #68736e;
+            margin-top: 4px;
+        }
+
+        .url-link {
+            color: #008f72;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .url-link:hover {
+            text-decoration: underline;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7b8580;
+        }
+
+        .no-data-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .no-data h3 {
+            color: #17211d;
+            margin-bottom: 8px;
+        }
+
+        .no-data p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .empty-add-btn {
+            display: inline-block;
+            background: #008f72;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .empty-add-btn:hover {
+            background: #00745d;
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 800px) {
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         FLASH MESSAGES
+    ========================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Job<span>Tracker</span>
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+
+                <a href="/">
+
+                    <span class="icon">
+                        ⌂
+                    </span>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <li class="active">
+
+                <a href="/applications">
+
+                    <span class="icon">
+                        ▣
+                    </span>
+
+                    Applications
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/interviews">
+
+                    <span class="icon">
+                        ◷
+                    </span>
+
+                    Interviews
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/settings">
+
+                    <span class="icon">
+                        ⚙
+                    </span>
+
+                    Settings
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <div class="main">
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Applications
+                </h1>
+
+                <p>
+                    Manage and track all your job applications.
+                </p>
+
+            </div>
+
+
+            <a href="/add"
+               class="add-btn">
+
+                + Add Application
+
+            </a>
+
+        </div>
+
+
+        <!-- =========================
+             APPLICATION CARD
+        ========================= -->
+
+        <div class="application-card">
+
+
+            <!-- SEARCH + FILTER -->
+
+            <div class="filter-row">
+
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-box"
+                    placeholder="Search company or job role..."
+                >
+
+
+                <select
+                    id="statusFilter"
+                    class="status-filter"
+                >
+
+                    <option value="All">
+                        All Status
+                    </option>
+
+                    <option value="Applied">
+                        Applied
+                    </option>
+
+                    <option value="Interview">
+                        Interview
+                    </option>
+
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
+                    <option value="Selected">
+                        Selected
+                    </option>
+
+                    <option value="Offer">
+                        Offer
+                    </option>
+
+                </select>
+
+
+            </div>
+
+
+            <div class="application-count">
+
+                Showing
+                <strong id="visibleCount">
+                    {{ jobs|length }}
+                </strong>
+                applications
+
+            </div>
+
+
+            <!-- =========================
+                 TABLE
+            ========================= -->
+
+            <div class="table-container">
+
+                <table id="applicationsTable">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Company
+                            </th>
+
+                            <th>
+                                Job Role
+                            </th>
+
+                            <th>
+                                Application Date
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Interview Date
+                            </th>
+
+                            <th>
+                                Job URL
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for job in jobs %}
+
+                        <tr class="application-row">
+
+
+                            <!-- COMPANY -->
+
+                            <td>
+
+                                <div class="company-name">
+                                    {{ job[1] }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- ROLE -->
+
+                            <td>
+
+                                <div class="role-name">
+                                    {{ job[2] }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- DATE -->
+
+                            <td>
+                                {{ job[3] }}
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+
+                                {% if job[4] == "Applied" %}
+
+                                    <span class="status status-applied">
+                                        Applied
+                                    </span>
+
+
+                                {% elif job[4] == "Interview" %}
+
+                                    <span class="status status-interview">
+                                        Interview
+                                    </span>
+
+
+                                {% elif job[4] == "Rejected" %}
+
+                                    <span class="status status-rejected">
+                                        Rejected
+                                    </span>
+
+
+                                {% elif job[4] == "Selected" %}
+
+                                    <span class="status status-selected">
+                                        Selected
+                                    </span>
+
+
+                                {% elif job[4] == "Offer" %}
+
+                                    <span class="status status-offer">
+                                        Offer
+                                    </span>
+
+
+                                {% else %}
+
+                                    <span class="status status-default">
+                                        {{ job[4] }}
+                                    </span>
+
+                                {% endif %}
+
+
+                            </td>
+
+
+                            <!-- INTERVIEW DATE -->
+
+                            <td>
+
+                                {% if job[5] %}
+
+                                    {{ job[5] }}
+
+                                {% else %}
+
+                                    -
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- JOB URL -->
+
+                            <td>
+
+                                {% if job[6] %}
+
+                                    <a
+                                        href="{{ job[6] }}"
+                                        target="_blank"
+                                        class="url-link"
+                                    >
+                                        Open ↗
+                                    </a>
+
+                                {% else %}
+
+                                    -
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- ACTIONS -->
+
+                            <td>
+
+                                <div class="action-buttons">
+
+
+                                    <a
+                                        href="/view/{{ job[0] }}"
+                                        class="edit-btn"
+                                    >
+                                        View
+                                    </a>
+
+
+                                    <a
+                                        href="/edit/{{ job[0] }}"
+                                        class="edit-btn"
+                                    >
+                                        Edit
+                                    </a>
+
+
+                                    <a
+                                        href="/delete/{{ job[0] }}"
+                                        class="delete-btn"
+                                        onclick="return confirm('Are you sure you want to delete this application?')"
+                                    >
+                                        Delete
+                                    </a>
+
+
+                                </div>
+
+                            </td>
+
+
+                        </tr>
+
+
+                        {% else %}
+
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                            >
+
+                                <div class="no-data">
+
+                                    <div class="no-data-icon">
+                                        ▣
+                                    </div>
+
+                                    <h3>
+                                        No applications yet
+                                    </h3>
+
+                                    <p>
+                                        Start tracking your job search
+                                        by adding your first application.
+                                    </p>
+
+                                    <a
+                                        href="/add"
+                                        class="empty-add-btn"
+                                    >
+                                        + Add Application
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            );
+
+
+        const statusFilter =
+            document.getElementById(
+                "statusFilter"
+            );
+
+
+        const table =
+            document.getElementById(
+                "applicationsTable"
+            );
+
+
+        const visibleCount =
+            document.getElementById(
+                "visibleCount"
+            );
+
+
+        function filterApplications() {
+
+
+            const search =
+                searchInput.value
+                .toLowerCase()
+                .trim();
+
+
+            const selectedStatus =
+                statusFilter.value;
+
+
+            const rows =
+                table.querySelectorAll(
+                    ".application-row"
+                );
+
+
+            let count = 0;
+
+
+            rows.forEach(function(row) {
+
+
+                const company =
+                    row
+                    .cells[0]
+                    .textContent
+                    .toLowerCase();
+
+
+                const role =
+                    row
+                    .cells[1]
+                    .textContent
+                    .toLowerCase();
+
+
+                const status =
+                    row
+                    .cells[3]
+                    .textContent
+                    .trim();
+
+
+                const searchMatch =
+                    company.includes(search) ||
+                    role.includes(search);
+
+
+                const statusMatch =
+                    selectedStatus === "All" ||
+                    status === selectedStatus;
+
+
+                if (
+                    searchMatch &&
+                    statusMatch
+                ) {
+
+                    row.style.display = "";
+
+                    count++;
+
+                }
+
+                else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+
+            visibleCount.textContent =
+                count;
+
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            filterApplications
+        );
+
+
+        statusFilter.addEventListener(
+            "change",
+            filterApplications
+        );
+
+
+        /* AUTO HIDE FLASH */
+
+        setTimeout(function() {
+
+
+            const messages =
+                document.querySelectorAll(
+                    ".flash"
+                );
+
+
+            messages.forEach(function(message) {
+
+
+                message.style.transition =
+                    "opacity 0.5s";
+
+
+                message.style.opacity =
+                    "0";
+
+
+                setTimeout(function() {
+
+                    message.remove();
+
+                }, 500);
+
+
+            });
+
+
+        }, 3000);
+
+
+    </script>
+
+
+</body>
+
+</html>

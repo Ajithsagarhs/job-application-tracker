@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Application Details - JobTracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #68736e;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .back-link:hover {
+            color: #008f72;
+        }
+
+        .details-card {
+            max-width: 950px;
+            background: white;
+            border: 1px solid #e4e8e6;
+            border-radius: 13px;
+            padding: 30px;
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #edf0ef;
+            margin-bottom: 25px;
+        }
+
+        .company-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .role-title {
+            color: #737d78;
+            font-size: 15px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .detail-box {
+            background: #f8faf9;
+            border-radius: 9px;
+            padding: 18px;
+        }
+
+        .detail-box.full {
+            grid-column: 1 / 3;
+        }
+
+        .detail-label {
+            color: #7a847f;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .notes {
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-weight: 400;
+            color: #47524d;
+        }
+
+        .job-link {
+            color: #008f72;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .job-link:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #edf0ef;
+        }
+
+        .back-btn {
+            background: #f0f2f1;
+            color: #47524d;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .back-btn:hover {
+            background: #e4e8e6;
+        }
+
+        .view-edit-btn {
+            background: #008f72;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .view-edit-btn:hover {
+            background: #00745d;
+        }
+
+        .view-delete-btn {
+            background: #fff0f0;
+            color: #c00000;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .view-delete-btn:hover {
+            background: #ffe0e0;
+        }
+
+        .status-large {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 700px) {
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-box.full {
+                grid-column: auto;
+            }
+
+            .details-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .details-card {
+                padding: 22px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .back-btn,
+            .view-edit-btn,
+            .view-delete-btn {
+                text-align: center;
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- FLASH MESSAGES -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Job<span>Tracker</span>
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+
+                <a href="/">
+
+                    <span class="icon">
+                        ⌂
+                    </span>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <li class="active">
+
+                <a href="/applications">
+
+                    <span class="icon">
+                        ▣
+                    </span>
+
+                    Applications
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/interviews">
+
+                    <span class="icon">
+                        ◷
+                    </span>
+
+                    Interviews
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/settings">
+
+                    <span class="icon">
+                        ⚙
+                    </span>
+
+                    Settings
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+        <a
+            href="/applications"
+            class="back-link"
+        >
+            ← Back to Applications
+        </a>
+
+
+        <div class="details-card">
+
+
+            <!-- HEADER -->
+
+            <div class="details-header">
+
+                <div>
+
+                    <h1 class="company-title">
+                        {{ job['company'] }}
+                    </h1>
+
+                    <p class="role-title">
+                        {{ job['role'] }}
+                    </p>
+
+                </div>
+
+
+                {% if job['status'] == "Applied" %}
+
+                    <span class="status status-applied status-large">
+                        Applied
+                    </span>
+
+                {% elif job['status'] == "Interview" %}
+
+                    <span class="status status-interview status-large">
+                        Interview
+                    </span>
+
+                {% elif job['status'] == "Rejected" %}
+
+                    <span class="status status-rejected status-large">
+                        Rejected
+                    </span>
+
+                {% elif job['status'] == "Selected" %}
+
+                    <span class="status status-selected status-large">
+                        Selected
+                    </span>
+
+                {% elif job['status'] == "Offer" %}
+
+                    <span class="status status-offer status-large">
+                        Offer
+                    </span>
+
+                {% else %}
+
+                    <span class="status status-default status-large">
+                        {{ job['status'] }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- DETAILS -->
+
+            <div class="detail-grid">
+
+
+                <!-- COMPANY -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Company
+                    </div>
+
+                    <div class="detail-value">
+                        {{ job['company'] }}
+                    </div>
+
+                </div>
+
+
+                <!-- ROLE -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Job Role
+                    </div>
+
+                    <div class="detail-value">
+                        {{ job['role'] }}
+                    </div>
+
+                </div>
+
+
+                <!-- APPLICATION DATE -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Application Date
+                    </div>
+
+                    <div class="detail-value">
+                        {{ job['application_date'] }}
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Status
+                    </div>
+
+                    <div class="detail-value">
+                        {{ job['status'] }}
+                    </div>
+
+                </div>
+
+
+                <!-- INTERVIEW DATE -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Interview Date
+                    </div>
+
+                    <div class="detail-value">
+
+                        {% if job['interview_date'] %}
+
+                            {{ job['interview_date'] }}
+
+                        {% else %}
+
+                            Not scheduled
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- JOB URL -->
+
+                <div class="detail-box">
+
+                    <div class="detail-label">
+                        Job Posting
+                    </div>
+
+                    <div class="detail-value">
+
+                        {% if job['job_url'] %}
+
+                            <a
+                                href="{{ job['job_url'] }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="job-link"
+                            >
+                                Open Job Posting ↗
+                            </a>
+
+                        {% else %}
+
+                            No URL added
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- NOTES -->
+
+                <div class="detail-box full">
+
+                    <div class="detail-label">
+                        Notes
+                    </div>
+
+                    <div class="detail-value notes">
+
+                        {% if job['notes'] %}
+
+                            {{ job['notes'] }}
+
+                        {% else %}
+
+                            No notes added.
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ACTION BUTTONS -->
+
+            <div class="actions">
+
+
+                <a
+                    href="/applications"
+                    class="back-btn"
+                >
+                    Back
+                </a>
+
+
+                <a
+                    href="/delete/{{ job['id'] }}"
+                    class="view-delete-btn"
+                    onclick="return confirm('Are you sure you want to delete this application?')"
+                >
+                    Delete
+                </a>
+
+
+                <a
+                    href="/edit/{{ job['id'] }}"
+                    class="view-edit-btn"
+                >
+                    Edit Application
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- FLASH AUTO HIDE -->
+
+    <script>
+
+        setTimeout(function() {
+
+            const messages =
+                document.querySelectorAll(
+                    ".flash"
+                );
+
+
+            messages.forEach(function(message) {
+
+                message.style.transition =
+                    "opacity 0.5s";
+
+                message.style.opacity =
+                    "0";
+
+
+                setTimeout(function() {
+
+                    message.remove();
+
+                }, 500);
+
+            });
+
+        }, 3000);
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,149 +1,589 @@
-from flask import Flask, render_template, request, redirect, url_for
-import database
+from flask import Flask, render_template, request, redirect, flash
+import sqlite3
+import re
 
 app = Flask(__name__)
 
+app.secret_key = "jobtracker-secret-key"
 
-# =========================
-# DASHBOARD / HOME
-# =========================
+
+# ==========================================
+# DATABASE CONNECTION
+# ==========================================
+
+def get_db():
+
+    conn = sqlite3.connect("jobs.db")
+
+    conn.row_factory = sqlite3.Row
+
+    return conn
+
+
+# ==========================================
+# DASHBOARD
+# ==========================================
 
 @app.route("/")
 def index():
 
-    search = request.args.get("search", "")
-    status_filter = request.args.get("status", "")
+    conn = get_db()
 
-    conn = database.get_connection()
+    jobs = conn.execute("""
+        SELECT *
+        FROM jobs
+        ORDER BY id DESC
+    """).fetchall()
 
-    query = "SELECT * FROM jobs WHERE 1=1"
-    params = []
 
-    # Search
-    if search:
-        query += """
-            AND (
-                company LIKE ?
-                OR role LIKE ?
-                OR notes LIKE ?
-            )
-        """
+    total = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+    """).fetchone()[0]
 
-        search_value = f"%{search}%"
 
-        params.extend([
-            search_value,
-            search_value,
-            search_value
-        ])
+    applied = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+        WHERE status = ?
+    """, ("Applied",)).fetchone()[0]
 
-    # Status filter
-    if status_filter:
-        query += " AND status = ?"
-        params.append(status_filter)
 
-    query += " ORDER BY id DESC"
+    interviews = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+        WHERE status = ?
+    """, ("Interview",)).fetchone()[0]
 
-    jobs = conn.execute(
-        query,
-        params
-    ).fetchall()
 
-    # Dashboard counts
-    total = conn.execute(
-        "SELECT COUNT(*) FROM jobs"
-    ).fetchone()[0]
+    rejected = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+        WHERE status = ?
+    """, ("Rejected",)).fetchone()[0]
 
-    applied = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = ?",
-        ("Applied",)
-    ).fetchone()[0]
 
-    interview = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = ?",
-        ("Interview",)
-    ).fetchone()[0]
+    selected = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+        WHERE status = ?
+    """, ("Selected",)).fetchone()[0]
 
-    rejected = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = ?",
-        ("Rejected",)
-    ).fetchone()[0]
 
-    selected = conn.execute(
-        "SELECT COUNT(*) FROM jobs WHERE status = ?",
-        ("Selected",)
-    ).fetchone()[0]
+    offers = conn.execute("""
+        SELECT COUNT(*)
+        FROM jobs
+        WHERE status = ?
+    """, ("Offer",)).fetchone()[0]
+
 
     conn.close()
+
 
     return render_template(
         "index.html",
         jobs=jobs,
         total=total,
         applied=applied,
-        interview=interview,
+        interviews=interviews,
         rejected=rejected,
         selected=selected,
-        search=search,
-        status_filter=status_filter
+        offers=offers
     )
 
 
-# =========================
-# ADD JOB
-# =========================
+# ==========================================
+# APPLICATIONS PAGE
+# ==========================================
 
-@app.route("/add", methods=["POST"])
-def add_job():
+@app.route("/applications")
+def applications():
 
-    company = request.form.get("company")
-    role = request.form.get("role")
-    application_date = request.form.get("application_date")
-    status = request.form.get("status")
-    interview_date = request.form.get("interview_date")
-    job_url = request.form.get("job_url")
-    notes = request.form.get("notes")
+    conn = get_db()
 
-    database.add_job(
-        company,
-        role,
-        application_date,
-        status,
-        interview_date,
-        job_url,
-        notes
-    )
-
-    return redirect(url_for("index"))
-
-
-# =========================
-# DELETE JOB
-# =========================
-
-@app.route("/delete/<int:job_id>", methods=["POST"])
-def delete_job(job_id):
-
-    database.delete_job(job_id)
-
-    return redirect(url_for("index"))
-
-
-# =========================
-# EDIT JOB
-# =========================
-
-@app.route("/edit/<int:job_id>")
-def edit_job(job_id):
-
-    conn = database.get_connection()
-
-    job = conn.execute(
-        "SELECT * FROM jobs WHERE id = ?",
-        (job_id,)
-    ).fetchone()
+    jobs = conn.execute("""
+        SELECT *
+        FROM jobs
+        ORDER BY id DESC
+    """).fetchall()
 
     conn.close()
+
+
+    return render_template(
+        "applications.html",
+        jobs=jobs
+    )
+
+
+# ==========================================
+# INTERVIEWS PAGE
+# ==========================================
+
+@app.route("/interviews")
+def interviews_page():
+
+    conn = get_db()
+
+    interviews = conn.execute("""
+        SELECT *
+        FROM jobs
+        WHERE interview_date IS NOT NULL
+        AND interview_date != ''
+        ORDER BY interview_date ASC
+    """).fetchall()
+
+    conn.close()
+
+
+    return render_template(
+        "interviews.html",
+        interviews=interviews
+    )
+
+
+# ==========================================
+# SETTINGS
+# ==========================================
+
+@app.route("/settings")
+def settings():
+
+    return render_template("settings.html")
+
+
+# ==========================================
+# ADD APPLICATION
+# ==========================================
+
+@app.route("/add", methods=["GET", "POST"])
+def add_application():
+
+    if request.method == "POST":
+
+        company = request.form.get(
+            "company", ""
+        ).strip()
+
+
+        role = request.form.get(
+            "role", ""
+        ).strip()
+
+
+        application_date = request.form.get(
+            "date", ""
+        ).strip()
+
+
+        status = request.form.get(
+            "status", ""
+        ).strip()
+
+
+        interview_date = request.form.get(
+            "interview", ""
+        ).strip()
+
+
+        job_url = request.form.get(
+            "url", ""
+        ).strip()
+
+
+        notes = request.form.get(
+            "notes", ""
+        ).strip()
+
+
+        # ==================================
+        # VALIDATION
+        # ==================================
+
+        if not company:
+
+            flash(
+                "Company name is required.",
+                "error"
+            )
+
+            return render_template(
+                "add.html"
+            )
+
+
+        if not role:
+
+            flash(
+                "Job role is required.",
+                "error"
+            )
+
+            return render_template(
+                "add.html"
+            )
+
+
+        if not application_date:
+
+            flash(
+                "Application date is required.",
+                "error"
+            )
+
+            return render_template(
+                "add.html"
+            )
+
+
+        allowed_statuses = [
+            "Applied",
+            "Interview",
+            "Rejected",
+            "Selected",
+            "Offer"
+        ]
+
+
+        if status not in allowed_statuses:
+
+            flash(
+                "Please select a valid application status.",
+                "error"
+            )
+
+            return render_template(
+                "add.html"
+            )
+
+
+        # ==================================
+        # URL VALIDATION
+        # ==================================
+
+        if job_url:
+
+            url_pattern = r"^https?://.+"
+
+
+            if not re.match(
+                url_pattern,
+                job_url
+            ):
+
+                flash(
+                    "Job URL must start with http:// or https://",
+                    "error"
+                )
+
+                return render_template(
+                    "add.html"
+                )
+
+
+        # ==================================
+        # INSERT APPLICATION
+        # ==================================
+
+        conn = get_db()
+
+
+        conn.execute("""
+            INSERT INTO jobs
+            (
+                company,
+                role,
+                application_date,
+                status,
+                interview_date,
+                job_url,
+                notes
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            company,
+            role,
+            application_date,
+            status,
+            interview_date,
+            job_url,
+            notes
+        ))
+
+
+        conn.commit()
+
+        conn.close()
+
+
+        flash(
+            "Application added successfully!",
+            "success"
+        )
+
+
+        return redirect("/")
+
+
+    return render_template(
+        "add.html"
+    )
+
+
+# ==========================================
+# VIEW APPLICATION
+# ==========================================
+
+@app.route("/view/<int:id>")
+def view_application(id):
+
+    conn = get_db()
+
+
+    job = conn.execute("""
+        SELECT *
+        FROM jobs
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+
+    conn.close()
+
+
+    if job is None:
+
+        flash(
+            "Application not found.",
+            "error"
+        )
+
+        return redirect("/")
+
+
+    return render_template(
+        "view.html",
+        job=job
+    )
+
+
+# ==========================================
+# EDIT APPLICATION
+# ==========================================
+
+@app.route(
+    "/edit/<int:id>",
+    methods=["GET", "POST"]
+)
+def edit_application(id):
+
+    conn = get_db()
+
+
+    job = conn.execute("""
+        SELECT *
+        FROM jobs
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+
+    if job is None:
+
+        conn.close()
+
+        flash(
+            "Application not found.",
+            "error"
+        )
+
+        return redirect("/")
+
+
+    # ==================================
+    # UPDATE
+    # ==================================
+
+    if request.method == "POST":
+
+        company = request.form.get(
+            "company", ""
+        ).strip()
+
+
+        role = request.form.get(
+            "role", ""
+        ).strip()
+
+
+        application_date = request.form.get(
+            "date", ""
+        ).strip()
+
+
+        status = request.form.get(
+            "status", ""
+        ).strip()
+
+
+        interview_date = request.form.get(
+            "interview", ""
+        ).strip()
+
+
+        job_url = request.form.get(
+            "url", ""
+        ).strip()
+
+
+        notes = request.form.get(
+            "notes", ""
+        ).strip()
+
+
+        # ==================================
+        # VALIDATION
+        # ==================================
+
+        if not company:
+
+            conn.close()
+
+            flash(
+                "Company name is required.",
+                "error"
+            )
+
+            return render_template(
+                "edit.html",
+                job=job
+            )
+
+
+        if not role:
+
+            conn.close()
+
+            flash(
+                "Job role is required.",
+                "error"
+            )
+
+            return render_template(
+                "edit.html",
+                job=job
+            )
+
+
+        if not application_date:
+
+            conn.close()
+
+            flash(
+                "Application date is required.",
+                "error"
+            )
+
+            return render_template(
+                "edit.html",
+                job=job
+            )
+
+
+        allowed_statuses = [
+            "Applied",
+            "Interview",
+            "Rejected",
+            "Selected",
+            "Offer"
+        ]
+
+
+        if status not in allowed_statuses:
+
+            conn.close()
+
+            flash(
+                "Please select a valid application status.",
+                "error"
+            )
+
+            return render_template(
+                "edit.html",
+                job=job
+            )
+
+
+        # ==================================
+        # URL VALIDATION
+        # ==================================
+
+        if job_url:
+
+            url_pattern = r"^https?://.+"
+
+
+            if not re.match(
+                url_pattern,
+                job_url
+            ):
+
+                conn.close()
+
+                flash(
+                    "Job URL must start with http:// or https://",
+                    "error"
+                )
+
+                return render_template(
+                    "edit.html",
+                    job=job
+                )
+
+
+        # ==================================
+        # UPDATE DATABASE
+        # ==================================
+
+        conn.execute("""
+            UPDATE jobs
+
+            SET
+                company = ?,
+                role = ?,
+                application_date = ?,
+                status = ?,
+                interview_date = ?,
+                job_url = ?,
+                notes = ?
+
+            WHERE id = ?
+        """, (
+            company,
+            role,
+            application_date,
+            status,
+            interview_date,
+            job_url,
+            notes,
+            id
+        ))
+
+
+        conn.commit()
+
+        conn.close()
+
+
+        flash(
+            "Application updated successfully!",
+            "success"
+        )
+
+
+        return redirect("/")
+
+
+    conn.close()
+
 
     return render_template(
         "edit.html",
@@ -151,58 +591,42 @@ def edit_job(job_id):
     )
 
 
-# =========================
-# UPDATE JOB
-# =========================
+# ==========================================
+# DELETE APPLICATION
+# ==========================================
 
-@app.route("/update/<int:job_id>", methods=["POST"])
-def update_job(job_id):
+@app.route("/delete/<int:id>")
+def delete_application(id):
 
-    company = request.form.get("company")
-    role = request.form.get("role")
-    application_date = request.form.get("application_date")
-    status = request.form.get("status")
-    interview_date = request.form.get("interview_date")
-    job_url = request.form.get("job_url")
-    notes = request.form.get("notes")
+    conn = get_db()
 
-    conn = database.get_connection()
 
     conn.execute("""
-        UPDATE jobs
-        SET
-            company = ?,
-            role = ?,
-            application_date = ?,
-            status = ?,
-            interview_date = ?,
-            job_url = ?,
-            notes = ?
+        DELETE FROM jobs
         WHERE id = ?
-    """, (
-        company,
-        role,
-        application_date,
-        status,
-        interview_date,
-        job_url,
-        notes,
-        job_id
-    ))
+    """, (id,))
+
 
     conn.commit()
+
     conn.close()
 
-    return redirect(url_for("index"))
+
+    flash(
+        "Application deleted successfully.",
+        "success"
+    )
 
 
-# =========================
+    return redirect("/")
+
+
+# ==========================================
 # RUN APPLICATION
-# =========================
+# ==========================================
 
 if __name__ == "__main__":
+
     app.run(
-        debug=True,
-        host="0.0.0.0",
-        port=5000
+        debug=True
     )
