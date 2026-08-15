@@ -1,47 +1,89 @@
 import sqlite3
 
-
 DATABASE = "jobs.db"
 
 
-def create_database():
-
+def get_connection():
     conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    cursor = conn.cursor()
 
+def create_table():
+    conn = get_connection()
 
-    cursor.execute("""
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             company TEXT NOT NULL,
-
             role TEXT NOT NULL,
-
-            application_date TEXT NOT NULL,
-
-            status TEXT NOT NULL,
-
+            application_date TEXT,
+            status TEXT,
             interview_date TEXT,
-
             job_url TEXT,
-
             notes TEXT
-
         )
     """)
 
-
     conn.commit()
-
     conn.close()
 
 
-    print("Database and jobs table created successfully!")
+def add_job(company, role, application_date, status,
+            interview_date, job_url, notes):
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO jobs
+        (company, role, application_date, status,
+         interview_date, job_url, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        company,
+        role,
+        application_date,
+        status,
+        interview_date,
+        job_url,
+        notes
+    ))
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    )
+""")
+
+    conn.commit()
+    conn.close()
 
 
-if __name__ == "__main__":
+def get_all_jobs():
+    conn = get_connection()
 
-    create_database()
+    jobs = conn.execute("""
+        SELECT * FROM jobs
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    return jobs
+
+
+def delete_job(job_id):
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM jobs WHERE id = ?",
+        (job_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+create_table()

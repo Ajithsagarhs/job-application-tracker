@@ -2,44 +2,126 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Application Details - JobTracker</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>View Application | JobTracker</title>
 
     <style>
 
-        .page-header {
-            margin-bottom: 28px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
 
-        .back-link {
-            display: inline-block;
-            color: #68736e;
-            text-decoration: none;
-            font-size: 13px;
-            margin-bottom: 18px;
+        body {
+            background: #f6f8f7;
+            color: #17211d;
         }
 
-        .back-link:hover {
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e4e8e6;
+            padding: 24px 16px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            padding: 8px 12px;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
             color: #008f72;
         }
 
-        .details-card {
-            max-width: 950px;
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 7px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #58635e;
+            padding: 13px 14px;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        .menu a:hover {
+            background: #f1f5f3;
+            color: #17211d;
+        }
+
+        .icon {
+            width: 22px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            padding: 32px 38px;
+            max-width: 1100px;
+        }
+
+        /* HEADER */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #737d78;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #007d64;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* CARD */
+
+        .application-card {
             background: white;
             border: 1px solid #e4e8e6;
-            border-radius: 13px;
+            border-radius: 14px;
             padding: 30px;
         }
 
-        .details-header {
+        /* TOP */
+
+        .application-top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -48,511 +130,377 @@
             margin-bottom: 25px;
         }
 
-        .company-title {
-            font-size: 28px;
+        .company {
+            font-size: 25px;
+            font-weight: 800;
             margin-bottom: 8px;
         }
 
-        .role-title {
-            color: #737d78;
+        .role {
+            color: #68736e;
             font-size: 15px;
         }
 
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
+        /* STATUS */
 
-        .detail-box {
-            background: #f8faf9;
-            border-radius: 9px;
-            padding: 18px;
-        }
-
-        .detail-box.full {
-            grid-column: 1 / 3;
-        }
-
-        .detail-label {
-            color: #7a847f;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 8px;
-        }
-
-        .detail-value {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .notes {
-            line-height: 1.7;
-            white-space: pre-wrap;
-            font-weight: 400;
-            color: #47524d;
-        }
-
-        .job-link {
-            color: #008f72;
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .job-link:hover {
-            text-decoration: underline;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 1px solid #edf0ef;
-        }
-
-        .back-btn {
-            background: #f0f2f1;
-            color: #47524d;
-            text-decoration: none;
-            padding: 11px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .back-btn:hover {
-            background: #e4e8e6;
-        }
-
-        .view-edit-btn {
-            background: #008f72;
-            color: white;
-            text-decoration: none;
-            padding: 11px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .view-edit-btn:hover {
-            background: #00745d;
-        }
-
-        .view-delete-btn {
-            background: #fff0f0;
-            color: #c00000;
-            text-decoration: none;
-            padding: 11px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .view-delete-btn:hover {
-            background: #ffe0e0;
-        }
-
-        .status-large {
+        .status {
+            display: inline-block;
             padding: 8px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 700;
         }
 
-        @media (max-width: 700px) {
+        .status-applied {
+            background: #e8f1ff;
+            color: #2563eb;
+        }
 
-            .detail-grid {
-                grid-template-columns: 1fr;
+        .status-interview {
+            background: #fff4d6;
+            color: #ad7300;
+        }
+
+        .status-selected {
+            background: #e5f8ed;
+            color: #16803c;
+        }
+
+        .status-offer {
+            background: #eee8ff;
+            color: #6d3fd1;
+        }
+
+        .status-rejected {
+            background: #ffe5e5;
+            color: #d00000;
+        }
+
+        /* DETAILS */
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail {
+            background: #f8faf9;
+            border: 1px solid #edf0ef;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .detail-label {
+            color: #7a847f;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* NOTES */
+
+        .section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #edf0ef;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .notes {
+            background: #f8faf9;
+            border-radius: 10px;
+            padding: 18px;
+            color: #68736e;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        /* URL */
+
+        .job-link {
+            display: inline-block;
+            margin-top: 15px;
+            background: #e6f5f0;
+            color: #007d64;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* ACTIONS */
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .edit-btn {
+            background: #008f72;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #00745d;
+        }
+
+        .delete-btn {
+            background: #fff0f0;
+            color: #d00000;
+        }
+
+        .delete-btn:hover {
+            background: #ffe0e0;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                width: 200px;
             }
 
-            .detail-box.full {
-                grid-column: auto;
+            .main {
+                margin-left: 200px;
+                padding: 22px;
             }
 
-            .details-header {
+            .application-top {
                 flex-direction: column;
                 gap: 15px;
             }
 
-            .details-card {
-                padding: 22px;
+            .details {
+                grid-template-columns: 1fr;
             }
 
-            .actions {
-                flex-direction: column;
-            }
-
-            .back-btn,
-            .view-edit-btn,
-            .view-delete-btn {
-                text-align: center;
-                width: 100%;
+            .header {
+                align-items: flex-start;
+                gap: 15px;
             }
 
         }
 
     </style>
-
 </head>
 
 
 <body>
 
 
-    <!-- FLASH MESSAGES -->
+<!-- SIDEBAR -->
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+<div class="sidebar">
 
-        {% if messages %}
+    <div class="logo">
+        Job<span>Tracker</span>
+    </div>
 
-            <div class="flash-container">
+    <ul class="menu">
 
-                {% for category, message in messages %}
+        <li>
+            <a href="/">
+                <span class="icon">⌂</span>
+                Dashboard
+            </a>
+        </li>
 
-                    <div class="flash {{ category }}">
-                        {{ message }}
-                    </div>
+        <li>
+            <a href="/applications">
+                <span class="icon">▣</span>
+                Applications
+            </a>
+        </li>
 
-                {% endfor %}
+        <li>
+            <a href="/pipeline">
+                <span class="icon">⇄</span>
+                Pipeline
+            </a>
+        </li>
 
-            </div>
+        <li>
+            <a href="/interviews">
+                <span class="icon">◷</span>
+                Interviews
+            </a>
+        </li>
 
-        {% endif %}
+        <li>
+            <a href="/analytics">
+                <span class="icon">▥</span>
+                Analytics
+            </a>
+        </li>
 
-    {% endwith %}
+        <li>
+            <a href="/settings">
+                <span class="icon">⚙</span>
+                Settings
+            </a>
+        </li>
+
+    </ul>
+
+</div>
 
 
-    <!-- SIDEBAR -->
+<!-- MAIN -->
 
-    <div class="sidebar">
+<div class="main">
 
-        <div class="logo">
-            Job<span>Tracker</span>
+    <div class="header">
+
+        <div>
+            <h1>Application Details</h1>
+
+            <p>
+                View complete information about this application.
+            </p>
         </div>
 
-
-        <ul class="menu">
-
-            <li>
-
-                <a href="/">
-
-                    <span class="icon">
-                        ⌂
-                    </span>
-
-                    Dashboard
-
-                </a>
-
-            </li>
-
-
-            <li class="active">
-
-                <a href="/applications">
-
-                    <span class="icon">
-                        ▣
-                    </span>
-
-                    Applications
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="/interviews">
-
-                    <span class="icon">
-                        ◷
-                    </span>
-
-                    Interviews
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="/settings">
-
-                    <span class="icon">
-                        ⚙
-                    </span>
-
-                    Settings
-
-                </a>
-
-            </li>
-
-        </ul>
+        <a href="/applications" class="back-btn">
+            ← Back to Applications
+        </a>
 
     </div>
 
 
-    <!-- MAIN -->
-
-    <div class="main">
+    <div class="application-card">
 
 
-        <a
-            href="/applications"
-            class="back-link"
-        >
-            ← Back to Applications
-        </a>
+        <!-- TOP -->
 
+        <div class="application-top">
 
-        <div class="details-card">
+            <div>
 
-
-            <!-- HEADER -->
-
-            <div class="details-header">
-
-                <div>
-
-                    <h1 class="company-title">
-                        {{ job['company'] }}
-                    </h1>
-
-                    <p class="role-title">
-                        {{ job['role'] }}
-                    </p>
-
+                <div class="company">
+                    {{ job['company'] }}
                 </div>
 
+                <div class="role">
+                    {{ job['role'] }}
+                </div>
 
-                {% if job['status'] == "Applied" %}
+            </div>
 
-                    <span class="status status-applied status-large">
+
+            <div>
+
+                {% if job['status'] == 'Applied' %}
+
+                    <span class="status status-applied">
                         Applied
                     </span>
 
-                {% elif job['status'] == "Interview" %}
+                {% elif job['status'] == 'Interview' %}
 
-                    <span class="status status-interview status-large">
+                    <span class="status status-interview">
                         Interview
                     </span>
 
-                {% elif job['status'] == "Rejected" %}
+                {% elif job['status'] == 'Selected' %}
 
-                    <span class="status status-rejected status-large">
-                        Rejected
-                    </span>
-
-                {% elif job['status'] == "Selected" %}
-
-                    <span class="status status-selected status-large">
+                    <span class="status status-selected">
                         Selected
                     </span>
 
-                {% elif job['status'] == "Offer" %}
+                {% elif job['status'] == 'Offer' %}
 
-                    <span class="status status-offer status-large">
+                    <span class="status status-offer">
                         Offer
                     </span>
 
-                {% else %}
+                {% elif job['status'] == 'Rejected' %}
 
-                    <span class="status status-default status-large">
-                        {{ job['status'] }}
+                    <span class="status status-rejected">
+                        Rejected
                     </span>
 
                 {% endif %}
 
             </div>
 
-
-            <!-- DETAILS -->
-
-            <div class="detail-grid">
+        </div>
 
 
-                <!-- COMPANY -->
+        <!-- DETAILS -->
 
-                <div class="detail-box">
+        <div class="details">
 
-                    <div class="detail-label">
-                        Company
-                    </div>
 
-                    <div class="detail-value">
-                        {{ job['company'] }}
-                    </div>
+            <div class="detail">
 
+                <div class="detail-label">
+                    Application Date
                 </div>
 
-
-                <!-- ROLE -->
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Job Role
-                    </div>
-
-                    <div class="detail-value">
-                        {{ job['role'] }}
-                    </div>
-
+                <div class="detail-value">
+                    {{ job['application_date'] }}
                 </div>
-
-
-                <!-- APPLICATION DATE -->
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Application Date
-                    </div>
-
-                    <div class="detail-value">
-                        {{ job['application_date'] }}
-                    </div>
-
-                </div>
-
-
-                <!-- STATUS -->
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Status
-                    </div>
-
-                    <div class="detail-value">
-                        {{ job['status'] }}
-                    </div>
-
-                </div>
-
-
-                <!-- INTERVIEW DATE -->
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Interview Date
-                    </div>
-
-                    <div class="detail-value">
-
-                        {% if job['interview_date'] %}
-
-                            {{ job['interview_date'] }}
-
-                        {% else %}
-
-                            Not scheduled
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-
-                <!-- JOB URL -->
-
-                <div class="detail-box">
-
-                    <div class="detail-label">
-                        Job Posting
-                    </div>
-
-                    <div class="detail-value">
-
-                        {% if job['job_url'] %}
-
-                            <a
-                                href="{{ job['job_url'] }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="job-link"
-                            >
-                                Open Job Posting ↗
-                            </a>
-
-                        {% else %}
-
-                            No URL added
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-
-                <!-- NOTES -->
-
-                <div class="detail-box full">
-
-                    <div class="detail-label">
-                        Notes
-                    </div>
-
-                    <div class="detail-value notes">
-
-                        {% if job['notes'] %}
-
-                            {{ job['notes'] }}
-
-                        {% else %}
-
-                            No notes added.
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
 
             </div>
 
 
-            <!-- ACTION BUTTONS -->
+            <div class="detail">
 
-            <div class="actions">
+                <div class="detail-label">
+                    Interview Date
+                </div>
 
+                <div class="detail-value">
+                    {{ job['interview_date'] or 'Not scheduled' }}
+                </div>
 
-                <a
-                    href="/applications"
-                    class="back-btn"
-                >
-                    Back
-                </a>
-
-
-                <a
-                    href="/delete/{{ job['id'] }}"
-                    class="view-delete-btn"
-                    onclick="return confirm('Are you sure you want to delete this application?')"
-                >
-                    Delete
-                </a>
+            </div>
 
 
-                <a
-                    href="/edit/{{ job['id'] }}"
-                    class="view-edit-btn"
-                >
-                    Edit Application
-                </a>
+            <div class="detail">
 
+                <div class="detail-label">
+                    Current Status
+                </div>
+
+                <div class="detail-value">
+                    {{ job['status'] }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Application ID
+                </div>
+
+                <div class="detail-value">
+                    #{{ job['id'] }}
+                </div>
 
             </div>
 
@@ -560,41 +508,70 @@
         </div>
 
 
+        <!-- NOTES -->
+
+        <div class="section">
+
+            <h2>Notes</h2>
+
+            <div class="notes">
+
+                {% if job['notes'] %}
+                    {{ job['notes'] }}
+                {% else %}
+                    No notes added for this application.
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- JOB URL -->
+
+        {% if job['job_url'] %}
+
+        <div class="section">
+
+            <h2>Job Posting</h2>
+
+            <a
+                href="{{ job['job_url'] }}"
+                target="_blank"
+                class="job-link"
+            >
+                Open Job Posting ↗
+            </a>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ACTIONS -->
+
+        <div class="actions">
+
+            <a
+                href="/edit/{{ job['id'] }}"
+                class="edit-btn"
+            >
+                Edit Application
+            </a>
+
+            <a
+                href="/delete/{{ job['id'] }}"
+                class="delete-btn"
+            >
+                Delete Application
+            </a>
+
+        </div>
+
+
     </div>
 
-
-    <!-- FLASH AUTO HIDE -->
-
-    <script>
-
-        setTimeout(function() {
-
-            const messages =
-                document.querySelectorAll(
-                    ".flash"
-                );
-
-
-            messages.forEach(function(message) {
-
-                message.style.transition =
-                    "opacity 0.5s";
-
-                message.style.opacity =
-                    "0";
-
-
-                setTimeout(function() {
-
-                    message.remove();
-
-                }, 500);
-
-            });
-
-        }, 3000);
-
-    </script>
+</div>
 
 
 </body>

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Pipeline - JobTracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #737d78;
+            font-size: 14px;
+        }
+
+        .add-btn {
+            background: #008f72;
+            color: white;
+            text-decoration: none;
+            padding: 11px 17px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .add-btn:hover {
+            background: #00745d;
+        }
+
+        /* ============================
+           PIPELINE
+        ============================ */
+
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(210px, 1fr));
+            gap: 14px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .column {
+            background: #eef1f0;
+            border-radius: 12px;
+            min-height: 500px;
+            padding: 12px;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 3px 12px;
+        }
+
+        .column-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #34413b;
+        }
+
+        .column-count {
+            min-width: 23px;
+            height: 23px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 800;
+            color: #68736e;
+        }
+
+        /* ============================
+           JOB CARD
+        ============================ */
+
+        .job-card {
+            background: white;
+            border: 1px solid #e2e7e4;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: .2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,.06);
+        }
+
+        .job-card.dragging {
+            opacity: .5;
+        }
+
+        .company {
+            font-size: 13px;
+            font-weight: 800;
+            color: #17211d;
+        }
+
+        .role {
+            font-size: 11px;
+            color: #737d78;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 13px;
+            padding-top: 10px;
+            border-top: 1px solid #edf0ef;
+        }
+
+        .date {
+            font-size: 9px;
+            color: #929a96;
+        }
+
+        .view-link {
+            text-decoration: none;
+            color: #007d64;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed transparent;
+            border-radius: 9px;
+            transition: .2s;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #008f72;
+            background: #e6f5f0;
+        }
+
+        .empty-column {
+            text-align: center;
+            color: #929a96;
+            font-size: 10px;
+            padding: 35px 10px;
+        }
+
+        .save-message {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            background: #17211d;
+            color: white;
+            padding: 11px 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+
+            .pipeline {
+                grid-template-columns: repeat(5, 230px);
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Job<span>Tracker</span>
+        </div>
+
+        <ul class="menu">
+
+            <li>
+                <a href="/">
+                    <span class="icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/applications">
+                    <span class="icon">▣</span>
+                    Applications
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="/pipeline">
+                    <span class="icon">▤</span>
+                    Pipeline
+                </a>
+            </li>
+
+            <li>
+                <a href="/interviews">
+                    <span class="icon">◷</span>
+                    Interviews
+                </a>
+            </li>
+
+            <li>
+                <a href="/analytics">
+                    <span class="icon">◉</span>
+                    Analytics
+                </a>
+            </li>
+
+            <li>
+                <a href="/settings">
+                    <span class="icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+        <!-- HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1>
+                    Application Pipeline
+                </h1>
+
+                <p>
+                    Track every application through your hiring process.
+                </p>
+
+            </div>
+
+            <a
+                href="/add"
+                class="add-btn"
+            >
+                + Add Application
+            </a>
+
+        </div>
+
+
+        <!-- PIPELINE -->
+
+        <div class="pipeline">
+
+
+            <!-- APPLIED -->
+
+            <div
+                class="column"
+                data-status="Applied"
+            >
+
+                <div class="column-header">
+
+                    <div class="column-title">
+                        Applied
+                    </div>
+
+                    <div class="column-count">
+                        {{ jobs
+                           |selectattr('status','equalto','Applied')
+                           |list
+                           |length }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="drop-zone"
+                    data-status="Applied"
+                >
+
+
+                    {% set applied_jobs =
+                        jobs
+                        |selectattr('status','equalto','Applied')
+                        |list
+                    %}
+
+
+                    {% if applied_jobs %}
+
+                        {% for job in applied_jobs %}
+
+                            <div
+                                class="job-card"
+                                draggable="true"
+                                data-id="{{ job['id'] }}"
+                            >
+
+                                <div class="company">
+                                    {{ job['company'] }}
+                                </div>
+
+                                <div class="role">
+                                    {{ job['role'] }}
+                                </div>
+
+                                <div class="card-footer">
+
+                                    <span class="date">
+                                        {{ job['application_date'] }}
+                                    </span>
+
+                                    <a
+                                        href="/view/{{ job['id'] }}"
+                                        class="view-link"
+                                    >
+                                        View
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-column">
+                            No applications
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- INTERVIEW -->
+
+            <div
+                class="column"
+                data-status="Interview"
+            >
+
+                <div class="column-header">
+
+                    <div class="column-title">
+                        Interview
+                    </div>
+
+                    <div class="column-count">
+                        {{ jobs
+                           |selectattr('status','equalto','Interview')
+                           |list
+                           |length }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="drop-zone"
+                    data-status="Interview"
+                >
+
+
+                    {% set interview_jobs =
+                        jobs
+                        |selectattr('status','equalto','Interview')
+                        |list
+                    %}
+
+
+                    {% if interview_jobs %}
+
+                        {% for job in interview_jobs %}
+
+                            <div
+                                class="job-card"
+                                draggable="true"
+                                data-id="{{ job['id'] }}"
+                            >
+
+                                <div class="company">
+                                    {{ job['company'] }}
+                                </div>
+
+                                <div class="role">
+                                    {{ job['role'] }}
+                                </div>
+
+                                <div class="card-footer">
+
+                                    <span class="date">
+                                        {{ job['application_date'] }}
+                                    </span>
+
+                                    <a
+                                        href="/view/{{ job['id'] }}"
+                                        class="view-link"
+                                    >
+                                        View
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-column">
+                            No interviews
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- SELECTED -->
+
+            <div
+                class="column"
+                data-status="Selected"
+            >
+
+                <div class="column-header">
+
+                    <div class="column-title">
+                        Selected
+                    </div>
+
+                    <div class="column-count">
+                        {{ jobs
+                           |selectattr('status','equalto','Selected')
+                           |list
+                           |length }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="drop-zone"
+                    data-status="Selected"
+                >
+
+
+                    {% set selected_jobs =
+                        jobs
+                        |selectattr('status','equalto','Selected')
+                        |list
+                    %}
+
+
+                    {% if selected_jobs %}
+
+                        {% for job in selected_jobs %}
+
+                            <div
+                                class="job-card"
+                                draggable="true"
+                                data-id="{{ job['id'] }}"
+                            >
+
+                                <div class="company">
+                                    {{ job['company'] }}
+                                </div>
+
+                                <div class="role">
+                                    {{ job['role'] }}
+                                </div>
+
+                                <div class="card-footer">
+
+                                    <span class="date">
+                                        {{ job['application_date'] }}
+                                    </span>
+
+                                    <a
+                                        href="/view/{{ job['id'] }}"
+                                        class="view-link"
+                                    >
+                                        View
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-column">
+                            No selections
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- OFFER -->
+
+            <div
+                class="column"
+                data-status="Offer"
+            >
+
+                <div class="column-header">
+
+                    <div class="column-title">
+                        Offer
+                    </div>
+
+                    <div class="column-count">
+                        {{ jobs
+                           |selectattr('status','equalto','Offer')
+                           |list
+                           |length }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="drop-zone"
+                    data-status="Offer"
+                >
+
+
+                    {% set offer_jobs =
+                        jobs
+                        |selectattr('status','equalto','Offer')
+                        |list
+                    %}
+
+
+                    {% if offer_jobs %}
+
+                        {% for job in offer_jobs %}
+
+                            <div
+                                class="job-card"
+                                draggable="true"
+                                data-id="{{ job['id'] }}"
+                            >
+
+                                <div class="company">
+                                    {{ job['company'] }}
+                                </div>
+
+                                <div class="role">
+                                    {{ job['role'] }}
+                                </div>
+
+                                <div class="card-footer">
+
+                                    <span class="date">
+                                        {{ job['application_date'] }}
+                                    </span>
+
+                                    <a
+                                        href="/view/{{ job['id'] }}"
+                                        class="view-link"
+                                    >
+                                        View
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-column">
+                            No offers
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- REJECTED -->
+
+            <div
+                class="column"
+                data-status="Rejected"
+            >
+
+                <div class="column-header">
+
+                    <div class="column-title">
+                        Rejected
+                    </div>
+
+                    <div class="column-count">
+                        {{ jobs
+                           |selectattr('status','equalto','Rejected')
+                           |list
+                           |length }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="drop-zone"
+                    data-status="Rejected"
+                >
+
+
+                    {% set rejected_jobs =
+                        jobs
+                        |selectattr('status','equalto','Rejected')
+                        |list
+                    %}
+
+
+                    {% if rejected_jobs %}
+
+                        {% for job in rejected_jobs %}
+
+                            <div
+                                class="job-card"
+                                draggable="true"
+                                data-id="{{ job['id'] }}"
+                            >
+
+                                <div class="company">
+                                    {{ job['company'] }}
+                                </div>
+
+                                <div class="role">
+                                    {{ job['role'] }}
+                                </div>
+
+                                <div class="card-footer">
+
+                                    <span class="date">
+                                        {{ job['application_date'] }}
+                                    </span>
+
+                                    <a
+                                        href="/view/{{ job['id'] }}"
+                                        class="view-link"
+                                    >
+                                        View
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-column">
+                            No rejections
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <div
+        id="saveMessage"
+        class="save-message"
+    >
+        Status updated successfully ✓
+    </div>
+
+
+    <!-- DRAG AND DROP -->
+
+    <script>
+
+        let draggedCard = null;
+
+
+        const cards =
+            document.querySelectorAll(
+                ".job-card"
+            );
+
+
+        const zones =
+            document.querySelectorAll(
+                ".drop-zone"
+            );
+
+
+        cards.forEach(
+            function(card) {
+
+                card.addEventListener(
+                    "dragstart",
+                    function() {
+
+                        draggedCard = this;
+
+                        this.classList.add(
+                            "dragging"
+                        );
+
+                    }
+                );
+
+
+                card.addEventListener(
+                    "dragend",
+                    function() {
+
+                        this.classList.remove(
+                            "dragging"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        zones.forEach(
+            function(zone) {
+
+
+                zone.addEventListener(
+                    "dragover",
+                    function(event) {
+
+                        event.preventDefault();
+
+                        this.classList.add(
+                            "drag-over"
+                        );
+
+                    }
+                );
+
+
+                zone.addEventListener(
+                    "dragleave",
+                    function() {
+
+                        this.classList.remove(
+                            "drag-over"
+                        );
+
+                    }
+                );
+
+
+                zone.addEventListener(
+                    "drop",
+                    function(event) {
+
+                        event.preventDefault();
+
+                        this.classList.remove(
+                            "drag-over"
+                        );
+
+
+                        if (!draggedCard) {
+                            return;
+                        }
+
+
+                        const jobId =
+                            draggedCard.dataset.id;
+
+
+                        const newStatus =
+                            this.dataset.status;
+
+
+                        this.appendChild(
+                            draggedCard
+                        );
+
+
+                        updateStatus(
+                            jobId,
+                            newStatus
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        function updateStatus(
+            jobId,
+            newStatus
+        ) {
+
+
+            fetch(
+                "/update-status/" + jobId,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        status: newStatus
+
+                    })
+
+                }
+
+            )
+
+            .then(
+                function(response) {
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Update failed"
+                        );
+
+                    }
+
+                    return response.json();
+
+                }
+
+            )
+
+            .then(
+                function() {
+
+                    showMessage();
+
+                    setTimeout(
+                        function() {
+                            location.reload();
+                        },
+                        700
+                    );
+
+                }
+
+            )
+
+            .catch(
+                function(error) {
+
+                    console.error(
+                        error
+                    );
+
+                    alert(
+                        "Could not update status."
+                    );
+
+                }
+            );
+
+        }
+
+
+        function showMessage() {
+
+            const message =
+                document.getElementById(
+                    "saveMessage"
+                );
+
+
+            message.style.display =
+                "block";
+
+
+            setTimeout(
+                function() {
+
+                    message.style.display =
+                        "none";
+
+                },
+                1500
+            );
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

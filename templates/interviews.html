@@ -8,182 +8,359 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Interviews - JobTracker</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>Interviews | JobTracker</title>
 
     <style>
 
-        .page-header {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f6f8f7;
+            color: #17211d;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e4e8e6;
+            padding: 24px 16px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            padding: 8px 12px;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
+            color: #008f72;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 7px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #58635e;
+            padding: 13px 14px;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        .menu a:hover {
+            background: #f1f5f3;
+            color: #17211d;
+        }
+
+        .menu .active a {
+            background: #e6f5f0;
+            color: #007d64;
+            font-weight: 700;
+        }
+
+        .icon {
+            width: 22px;
+            text-align: center;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            padding: 32px 38px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
         }
 
-        .page-header h1 {
+        .welcome h1 {
             font-size: 30px;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
         }
 
-        .page-header p {
+        .welcome p {
             color: #737d78;
             font-size: 14px;
         }
 
-        .interviews-card {
+        .add-btn {
+            background: #008f72;
+            color: white;
+            text-decoration: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .add-btn:hover {
+            background: #00745d;
+        }
+
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #e4e8e6;
+            border-radius: 13px;
+            padding: 22px;
+        }
+
+        .summary-card h3 {
+            color: #68736e;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .summary-card p {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .teal {
+            color: #008f72;
+        }
+
+        .orange {
+            color: #d97706;
+        }
+
+        .blue {
+            color: #2563eb;
+        }
+
+        /* =========================
+           INTERVIEW SECTION
+        ========================= */
+
+        .interview-section {
             background: white;
             border: 1px solid #e4e8e6;
             border-radius: 13px;
             padding: 25px;
         }
 
-        .interview-count {
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+        }
+
+        .section-header span {
             color: #737d78;
             font-size: 13px;
-            margin-bottom: 20px;
         }
 
-        .interview-count strong {
-            color: #17211d;
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            overflow-x: auto;
         }
 
-        .interview-row {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 20px 0;
-            border-bottom: 1px solid #edf0ef;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .interview-row:last-child {
+        th {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e6eae8;
+            color: #7a847f;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        td {
+            padding: 17px 12px;
+            border-bottom: 1px solid #eef1ef;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #fafcfb;
+        }
+
+        tbody tr:last-child td {
             border-bottom: none;
         }
 
-        .date-box {
-            width: 75px;
-            min-width: 75px;
-            height: 75px;
-            background: #fff4d9;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        /* =========================
+           COMPANY
+        ========================= */
+
+        .company-name {
+            font-weight: 700;
+        }
+
+        .role-name {
+            color: #68736e;
+        }
+
+        /* =========================
+           DATE
+        ========================= */
+
+        .interview-date {
+            background: #fff4d6;
+            color: #ad7300;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-interview {
+            background: #fff4d6;
             color: #ad7300;
         }
 
-        .date-icon {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
-        .date-text {
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        .interview-info {
-            flex: 1;
-        }
-
-        .interview-info h3 {
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .interview-info p {
-            color: #68736e;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .interview-info small {
-            color: #8a938f;
-            font-size: 12px;
-        }
-
-        .interview-status {
-            text-align: right;
-        }
+        /* =========================
+           BUTTONS
+        ========================= */
 
         .view-btn {
-            display: inline-block;
             background: #e6f5f0;
             color: #007d64;
             text-decoration: none;
-            padding: 9px 14px;
+            padding: 8px 12px;
             border-radius: 7px;
             font-size: 12px;
             font-weight: 700;
-            margin-bottom: 7px;
         }
 
-        .edit-interview-btn {
-            display: block;
-            color: #68736e;
+        .view-btn:hover {
+            background: #d8eee8;
+        }
+
+        .edit-btn {
+            background: #f0f2f1;
+            color: #333;
             text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 7px;
             font-size: 12px;
+            font-weight: 700;
+            margin-left: 5px;
         }
 
-        .edit-interview-btn:hover {
-            color: #008f72;
+        .edit-btn:hover {
+            background: #e4e8e6;
         }
 
-        .no-interviews {
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
             text-align: center;
-            padding: 70px 20px;
+            padding: 60px 20px;
             color: #7b8580;
         }
 
-        .no-interviews-icon {
+        .empty-icon {
             font-size: 45px;
             margin-bottom: 15px;
         }
 
-        .no-interviews h2 {
-            color: #17211d;
-            font-size: 20px;
+        .empty h3 {
+            color: #34413b;
             margin-bottom: 8px;
         }
 
-        .no-interviews p {
-            font-size: 14px;
-            margin-bottom: 22px;
+        .empty p {
+            margin-bottom: 20px;
         }
 
-        .add-interview-btn {
-            display: inline-block;
-            background: #008f72;
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
         }
 
-        .add-interview-btn:hover {
-            background: #00745d;
-        }
+        @media (max-width: 750px) {
 
-        @media (max-width: 700px) {
+            .sidebar {
+                width: 200px;
+            }
 
-            .page-header {
+            .main {
+                margin-left: 200px;
+                padding: 22px;
+            }
+
+            .topbar {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
-            }
-
-            .interview-row {
-                flex-wrap: wrap;
-            }
-
-            .interview-status {
-                width: 100%;
-                text-align: left;
             }
 
         }
@@ -196,330 +373,292 @@
 <body>
 
 
-    <!-- FLASH MESSAGES -->
+<!-- =========================
+     SIDEBAR
+========================= -->
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+<div class="sidebar">
 
-        {% if messages %}
-
-            <div class="flash-container">
-
-                {% for category, message in messages %}
-
-                    <div class="flash {{ category }}">
-                        {{ message }}
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-        {% endif %}
-
-    {% endwith %}
+    <div class="logo">
+        Job<span>Tracker</span>
+    </div>
 
 
-    <!-- SIDEBAR -->
+    <ul class="menu">
 
-    <div class="sidebar">
+        <li>
+            <a href="/">
+                <span class="icon">⌂</span>
+                Dashboard
+            </a>
+        </li>
 
-        <div class="logo">
-            Job<span>Tracker</span>
+
+        <li>
+            <a href="/applications">
+                <span class="icon">▣</span>
+                Applications
+            </a>
+        </li>
+
+
+        <li>
+            <a href="/pipeline">
+                <span class="icon">⇄</span>
+                Pipeline
+            </a>
+        </li>
+
+
+        <li class="active">
+            <a href="/interviews">
+                <span class="icon">◷</span>
+                Interviews
+            </a>
+        </li>
+
+
+        <li>
+            <a href="/analytics">
+                <span class="icon">▥</span>
+                Analytics
+            </a>
+        </li>
+
+
+        <li>
+            <a href="/settings">
+                <span class="icon">⚙</span>
+                Settings
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="main">
+
+
+    <!-- HEADER -->
+
+    <div class="topbar">
+
+        <div class="welcome">
+
+            <h1>Interviews</h1>
+
+            <p>
+                Keep track of your upcoming job interviews.
+            </p>
+
         </div>
 
 
-        <ul class="menu">
-
-            <li>
-
-                <a href="/">
-
-                    <span class="icon">
-                        ⌂
-                    </span>
-
-                    Dashboard
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="/applications">
-
-                    <span class="icon">
-                        ▣
-                    </span>
-
-                    Applications
-
-                </a>
-
-            </li>
-
-
-            <li class="active">
-
-                <a href="/interviews">
-
-                    <span class="icon">
-                        ◷
-                    </span>
-
-                    Interviews
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="/settings">
-
-                    <span class="icon">
-                        ⚙
-                    </span>
-
-                    Settings
-
-                </a>
-
-            </li>
-
-        </ul>
+        <a href="/add" class="add-btn">
+            + Add Application
+        </a>
 
     </div>
 
 
-    <!-- MAIN -->
+    <!-- =========================
+         SUMMARY
+    ========================= -->
 
-    <div class="main">
-
-
-        <!-- PAGE HEADER -->
-
-        <div class="page-header">
-
-            <div>
-
-                <h1>
-                    Interviews
-                </h1>
-
-                <p>
-                    Keep track of your scheduled job interviews.
-                </p>
-
-            </div>
+    <div class="summary">
 
 
-            <a href="/add"
-               class="add-btn">
+        <div class="summary-card">
 
-                + Add Application
+            <h3>Total Interviews</h3>
 
-            </a>
+            <p class="teal">
+                {{ interviews|length }}
+            </p>
 
         </div>
 
 
-        <!-- INTERVIEWS CARD -->
+        <div class="summary-card">
 
-        <div class="interviews-card">
+            <h3>Scheduled</h3>
+
+            <p class="orange">
+                {{ interviews|length }}
+            </p>
+
+        </div>
 
 
-            {% if interviews %}
+        <div class="summary-card">
+
+            <h3>Interview Stage</h3>
+
+            <p class="blue">
+                {{ interviews|length }}
+            </p>
+
+        </div>
 
 
-                <div class="interview-count">
+    </div>
 
-                    You have
-                    <strong>
-                        {{ interviews|length }}
-                    </strong>
-                    scheduled interview(s).
 
-                </div>
+    <!-- =========================
+         INTERVIEW TABLE
+    ========================= -->
+
+    <div class="interview-section">
+
+
+        <div class="section-header">
+
+            <h2>Upcoming Interviews</h2>
+
+            <span>
+                {{ interviews|length }} interview(s)
+            </span>
+
+        </div>
+
+
+        {% if interviews %}
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Company</th>
+
+                        <th>Job Role</th>
+
+                        <th>Interview Date</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
 
 
                 {% for job in interviews %}
 
-
-                    <div class="interview-row">
-
-
-                        <!-- DATE -->
-
-                        <div class="date-box">
-
-                            <div class="date-icon">
-                                ◷
-                            </div>
-
-                            <div class="date-text">
-                                {{ job['interview_date'] }}
-                            </div>
-
-                        </div>
+                    <tr>
 
 
-                        <!-- INFO -->
+                        <td>
 
-                        <div class="interview-info">
-
-                            <h3>
+                            <div class="company-name">
                                 {{ job['company'] }}
-                            </h3>
+                            </div>
 
-                            <p>
+                        </td>
+
+
+                        <td>
+
+                            <div class="role-name">
                                 {{ job['role'] }}
-                            </p>
+                            </div>
 
-                            <small>
-                                Application date:
-                                {{ job['application_date'] }}
-                            </small>
-
-                        </div>
+                        </td>
 
 
-                        <!-- STATUS -->
+                        <td>
 
-                        <div class="interview-status">
+                            <span class="interview-date">
+                                {{ job['interview_date'] }}
+                            </span>
 
-
-                            {% if job['status'] == "Interview" %}
-
-                                <span class="status status-interview">
-                                    Interview
-                                </span>
-
-                            {% elif job['status'] == "Selected" %}
-
-                                <span class="status status-selected">
-                                    Selected
-                                </span>
-
-                            {% elif job['status'] == "Offer" %}
-
-                                <span class="status status-offer">
-                                    Offer
-                                </span>
-
-                            {% else %}
-
-                                <span class="status status-default">
-                                    {{ job['status'] }}
-                                </span>
-
-                            {% endif %}
+                        </td>
 
 
-                            <br>
+                        <td>
 
+                            <span class="status status-interview">
+                                {{ job['status'] }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
 
                             <a
                                 href="/view/{{ job['id'] }}"
                                 class="view-btn"
                             >
-                                View Details
+                                View
                             </a>
 
 
                             <a
                                 href="/edit/{{ job['id'] }}"
-                                class="edit-interview-btn"
+                                class="edit-btn"
                             >
-                                Edit Interview
+                                Edit
                             </a>
 
+                        </td>
 
-                        </div>
 
-
-                    </div>
-
+                    </tr>
 
                 {% endfor %}
 
 
-            {% else %}
+                </tbody>
 
-
-                <!-- NO INTERVIEWS -->
-
-                <div class="no-interviews">
-
-                    <div class="no-interviews-icon">
-                        ◷
-                    </div>
-
-
-                    <h2>
-                        No interviews scheduled
-                    </h2>
-
-
-                    <p>
-                        When you add an interview date to an
-                        application, it will appear here.
-                    </p>
-
-
-                    <a
-                        href="/add"
-                        class="add-interview-btn"
-                    >
-                        + Add Application
-                    </a>
-
-                </div>
-
-
-            {% endif %}
-
+            </table>
 
         </div>
+
+
+        {% else %}
+
+
+        <div class="empty">
+
+            <div class="empty-icon">
+                ◷
+            </div>
+
+            <h3>No interviews scheduled</h3>
+
+            <p>
+                Applications with an interview date will appear here.
+            </p>
+
+            <a href="/add" class="add-btn">
+                + Add Application
+            </a>
+
+        </div>
+
+
+        {% endif %}
 
 
     </div>
 
 
-    <!-- AUTO HIDE FLASH -->
-
-    <script>
-
-        setTimeout(function() {
-
-            const messages =
-                document.querySelectorAll(
-                    ".flash"
-                );
-
-
-            messages.forEach(function(message) {
-
-                message.style.transition =
-                    "opacity 0.5s";
-
-                message.style.opacity =
-                    "0";
-
-
-                setTimeout(function() {
-
-                    message.remove();
-
-                }, 500);
-
-            });
-
-        }, 3000);
-
-    </script>
+</div>
 
 
 </body>

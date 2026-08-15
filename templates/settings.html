@@ -8,49 +8,162 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Settings - JobTracker</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>Settings | JobTracker</title>
 
     <style>
 
-        .page-header {
-            margin-bottom: 28px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
 
-        .page-header h1 {
+        body {
+            background: #f6f8f7;
+            color: #17211d;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e4e8e6;
+            padding: 24px 16px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            padding: 8px 12px;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
+            color: #008f72;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 7px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #58635e;
+            padding: 13px 14px;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        .menu a:hover {
+            background: #f1f5f3;
+            color: #17211d;
+        }
+
+        .menu .active a {
+            background: #e6f5f0;
+            color: #007d64;
+            font-weight: 700;
+        }
+
+        .icon {
+            width: 22px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            padding: 32px 38px;
+            max-width: 1200px;
+        }
+
+        /* HEADER */
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
             font-size: 30px;
             margin-bottom: 7px;
         }
 
-        .page-header p {
+        .header p {
             color: #737d78;
             font-size: 14px;
         }
 
-        .settings-container {
-            max-width: 900px;
-        }
+        /* SETTINGS CARD */
 
         .settings-card {
             background: white;
             border: 1px solid #e4e8e6;
-            border-radius: 13px;
+            border-radius: 14px;
             padding: 28px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
-        .settings-card h2 {
+        .settings-title {
             font-size: 19px;
+            font-weight: 700;
             margin-bottom: 6px;
         }
 
-        .settings-card-description {
-            color: #7a847f;
+        .settings-description {
+            color: #737d78;
             font-size: 13px;
             margin-bottom: 25px;
         }
+
+        /* PROFILE */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #edf0ef;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: #e6f5f0;
+            color: #007d64;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .profile h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .profile p {
+            color: #737d78;
+            font-size: 13px;
+        }
+
+        /* ROW */
 
         .setting-row {
             display: flex;
@@ -64,107 +177,106 @@
             border-bottom: none;
         }
 
-        .setting-info {
-            flex: 1;
-        }
-
-        .setting-info strong {
-            display: block;
+        .setting-info h3 {
             font-size: 14px;
             margin-bottom: 5px;
         }
 
-        .setting-info span {
+        .setting-info p {
             color: #7a847f;
             font-size: 12px;
         }
 
-        .setting-value {
-            color: #68736e;
-            font-size: 13px;
-            font-weight: 600;
+        /* SELECT */
+
+        .select {
+            padding: 10px 14px;
+            border: 1px solid #dfe4e2;
+            border-radius: 8px;
+            background: white;
+            min-width: 150px;
         }
 
-        .about-logo {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 10px;
+        .select:focus {
+            outline: none;
+            border-color: #008f72;
         }
 
-        .about-logo span {
-            color: #008f72;
-        }
+        /* TOGGLE */
 
-        .about-text {
-            color: #68736e;
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .feature-list {
-            list-style: none;
-            margin-top: 18px;
-        }
-
-        .feature-list li {
-            padding: 9px 0;
-            color: #58635e;
-            font-size: 13px;
-        }
-
-        .feature-list li::before {
-            content: "✓";
-            color: #008f72;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .tech-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .tech-badge {
-            background: #e6f5f0;
-            color: #007d64;
-            padding: 7px 12px;
+        .toggle {
+            width: 46px;
+            height: 25px;
+            background: #008f72;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+            position: relative;
+            cursor: pointer;
         }
 
-        .danger-card {
-            border-color: #f0d6d6;
+        .toggle::after {
+            content: "";
+            width: 19px;
+            height: 19px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            right: 3px;
+            top: 3px;
         }
 
-        .danger-card h2 {
-            color: #b00000;
-        }
+        /* BUTTON */
 
-        .dashboard-btn {
-            display: inline-block;
+        .save-btn {
             background: #008f72;
             color: white;
-            text-decoration: none;
-            padding: 11px 18px;
+            border: none;
+            padding: 12px 20px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 700;
-            margin-top: 10px;
+            cursor: pointer;
         }
 
-        .dashboard-btn:hover {
+        .save-btn:hover {
             background: #00745d;
         }
 
-        @media (max-width: 650px) {
+        /* ABOUT */
+
+        .about-box {
+            background: #f7faf9;
+            border: 1px solid #e6ece9;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .about-box strong {
+            color: #007d64;
+        }
+
+        .about-box p {
+            color: #68736e;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                padding: 22px;
+            }
 
             .setting-row {
-                flex-direction: column;
                 align-items: flex-start;
-                gap: 8px;
+                gap: 20px;
+                flex-direction: column;
             }
 
         }
@@ -177,330 +289,284 @@
 <body>
 
 
-    <!-- =========================
-         SIDEBAR
-    ========================= -->
+<!-- SIDEBAR -->
 
-    <div class="sidebar">
+<div class="sidebar">
 
-        <div class="logo">
-            Job<span>Tracker</span>
-        </div>
+    <div class="logo">
+        Job<span>Tracker</span>
+    </div>
+
+    <ul class="menu">
+
+        <li>
+            <a href="/">
+                <span class="icon">⌂</span>
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="/applications">
+                <span class="icon">▣</span>
+                Applications
+            </a>
+        </li>
+
+        <li>
+            <a href="/pipeline">
+                <span class="icon">⇄</span>
+                Pipeline
+            </a>
+        </li>
+
+        <li>
+            <a href="/interviews">
+                <span class="icon">◷</span>
+                Interviews
+            </a>
+        </li>
+
+        <li>
+            <a href="/analytics">
+                <span class="icon">▥</span>
+                Analytics
+            </a>
+        </li>
+
+        <li class="active">
+            <a href="/settings">
+                <span class="icon">⚙</span>
+                Settings
+            </a>
+        </li>
+
+    </ul>
+
+</div>
 
 
-        <ul class="menu">
+<!-- MAIN -->
 
-            <li>
-
-                <a href="/">
-
-                    <span class="icon">
-                        ⌂
-                    </span>
-
-                    Dashboard
-
-                </a>
-
-            </li>
+<div class="main">
 
 
-            <li>
+    <!-- HEADER -->
 
-                <a href="/applications">
+    <div class="header">
 
-                    <span class="icon">
-                        ▣
-                    </span>
+        <h1>Settings</h1>
 
-                    Applications
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="/interviews">
-
-                    <span class="icon">
-                        ◷
-                    </span>
-
-                    Interviews
-
-                </a>
-
-            </li>
-
-
-            <li class="active">
-
-                <a href="/settings">
-
-                    <span class="icon">
-                        ⚙
-                    </span>
-
-                    Settings
-
-                </a>
-
-            </li>
-
-        </ul>
+        <p>
+            Manage your JobTracker preferences.
+        </p>
 
     </div>
 
 
-    <!-- =========================
-         MAIN
-    ========================= -->
+    <!-- PROFILE -->
 
-    <div class="main">
+    <div class="settings-card">
+
+        <div class="settings-title">
+            Profile
+        </div>
+
+        <div class="settings-description">
+            Your JobTracker profile information.
+        </div>
 
 
-        <!-- PAGE HEADER -->
+        <div class="profile">
 
-        <div class="page-header">
+            <div class="avatar">
+                JT
+            </div>
 
-            <h1>
-                Settings
-            </h1>
+            <div>
+
+                <h2>
+                    Job Seeker
+                </h2>
+
+                <p>
+                    Job Application Tracker
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Application Statuses</h3>
+
+                <p>
+                    Track Applied, Interview, Selected, Offer and Rejected.
+                </p>
+
+            </div>
+
+            <span>
+                5 statuses
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- PREFERENCES -->
+
+    <div class="settings-card">
+
+        <div class="settings-title">
+            Preferences
+        </div>
+
+        <div class="settings-description">
+            Customize how your application tracker works.
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Default View</h3>
+
+                <p>
+                    Choose the page you want to use as your main view.
+                </p>
+
+            </div>
+
+            <select class="select">
+
+                <option>
+                    Dashboard
+                </option>
+
+                <option>
+                    Applications
+                </option>
+
+                <option>
+                    Pipeline
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Notifications</h3>
+
+                <p>
+                    Keep interview reminders enabled.
+                </p>
+
+            </div>
+
+            <div class="toggle"></div>
+
+        </div>
+
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Theme</h3>
+
+                <p>
+                    Choose the appearance of JobTracker.
+                </p>
+
+            </div>
+
+            <select class="select">
+
+                <option>
+                    Light
+                </option>
+
+                <option>
+                    Dark
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div style="margin-top:25px;">
+
+            <button
+                class="save-btn"
+                onclick="saveSettings()"
+            >
+                Save Preferences
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ABOUT -->
+
+    <div class="settings-card">
+
+        <div class="settings-title">
+            About JobTracker
+        </div>
+
+        <div class="settings-description">
+            Your personal job application management system.
+        </div>
+
+
+        <div class="about-box">
 
             <p>
-                Manage your JobTracker preferences.
+
+                <strong>JobTracker</strong>
+                helps you organize job applications,
+                monitor your hiring pipeline, track interviews
+                and understand your job search performance.
+
+                <br><br>
+
+                Version 1.0
+
             </p>
 
         </div>
 
-
-        <div class="settings-container">
-
-
-            <!-- =========================
-                 APPLICATION SETTINGS
-            ========================= -->
-
-            <div class="settings-card">
-
-                <h2>
-                    Application Settings
-                </h2>
-
-                <p class="settings-card-description">
-                    Information about your job tracking system.
-                </p>
-
-
-                <div class="setting-row">
-
-                    <div class="setting-info">
-
-                        <strong>
-                            Application Name
-                        </strong>
-
-                        <span>
-                            Name of this job tracking application.
-                        </span>
-
-                    </div>
-
-
-                    <div class="setting-value">
-                        JobTracker
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div class="setting-info">
-
-                        <strong>
-                            Database
-                        </strong>
-
-                        <span>
-                            Database used to store applications.
-                        </span>
-
-                    </div>
-
-
-                    <div class="setting-value">
-                        SQLite
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div class="setting-info">
-
-                        <strong>
-                            Application Statuses
-                        </strong>
-
-                        <span>
-                            Available statuses for job applications.
-                        </span>
-
-                    </div>
-
-
-                    <div class="setting-value">
-                        5 statuses
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================
-                 FEATURES
-            ========================= -->
-
-            <div class="settings-card">
-
-                <h2>
-                    Features
-                </h2>
-
-                <p class="settings-card-description">
-                    Features currently available in JobTracker.
-                </p>
-
-
-                <ul class="feature-list">
-
-                    <li>
-                        Add job applications
-                    </li>
-
-                    <li>
-                        Edit existing applications
-                    </li>
-
-                    <li>
-                        Delete applications
-                    </li>
-
-                    <li>
-                        Search and filter applications
-                    </li>
-
-                    <li>
-                        Track application status
-                    </li>
-
-                    <li>
-                        Track interview dates
-                    </li>
-
-                    <li>
-                        View complete application details
-                    </li>
-
-                    <li>
-                        Dashboard analytics
-                    </li>
-
-                    <li>
-                        Upcoming interview tracking
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <!-- =========================
-                 TECHNOLOGIES
-            ========================= -->
-
-            <div class="settings-card">
-
-                <h2>
-                    Technologies
-                </h2>
-
-                <p class="settings-card-description">
-                    Technologies used to build this project.
-                </p>
-
-
-                <div class="tech-badges">
-
-                    <span class="tech-badge">
-                        Python
-                    </span>
-
-                    <span class="tech-badge">
-                        Flask
-                    </span>
-
-                    <span class="tech-badge">
-                        SQLite
-                    </span>
-
-                    <span class="tech-badge">
-                        HTML
-                    </span>
-
-                    <span class="tech-badge">
-                        CSS
-                    </span>
-
-                    <span class="tech-badge">
-                        JavaScript
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================
-                 ABOUT
-            ========================= -->
-
-            <div class="settings-card">
-
-                <div class="about-logo">
-                    Job<span>Tracker</span>
-                </div>
-
-
-                <p class="about-text">
-
-                    JobTracker is a simple job application
-                    management system designed to help job
-                    seekers organize and track their job search
-                    in one place.
-
-                </p>
-
-
-                <a href="/"
-                   class="dashboard-btn">
-
-                    ← Back to Dashboard
-
-                </a>
-
-            </div>
-
-
-        </div>
-
-
     </div>
+
+
+</div>
+
+
+<script>
+
+function saveSettings() {
+
+    alert("Preferences saved successfully!");
+
+}
+
+</script>
 
 
 </body>
